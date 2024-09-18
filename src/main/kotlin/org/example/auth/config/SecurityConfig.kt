@@ -57,16 +57,9 @@ class SecurityConfig(
             .oauth2Login {
                     oauth2 ->
                 oauth2
-//                .clientRegistrationRepository(jpaClientRegisterationRepository)
-//                .successHandler(oauth2SuccessHandler)
                     .userInfoEndpoint { userInfoEndpoint ->
                         userInfoEndpoint.userService(customOAuth2UserService)
                     }
-//                    .authenticationSuccessHandler(loginSuccessHandler(redirectUrl))
-//                    .authenticationFailureHandler(RedirectServerAuthenticationFailureHandler(redirectUrl))
-//                  oauth2 -> oauth2
-//                      .authorizedClientService(authorizedClientService)  ==> 이것이 없어도 되는가?
-//                oauth2 -> oauth2.userInfoEndpoint { userInfo -> userInfo.userService {  } }
             }
             .logout { logout ->
                 logout
@@ -92,12 +85,6 @@ class SecurityConfig(
         return provider.apply {
             setUserDetailsService(userService)
         }
-
-//            .setUserDetailsService(userService)
-
-//        provider.setUserDetailsPasswordService()
-//        provider.setPasswordEncoder(passwordEncoder())
-//        return provider
     }
 
     @Bean
