@@ -1,0 +1,49 @@
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns="http://www.w3.org/1999/html"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/layoutBase}">
+
+<th:block layout:fragment="content">
+    <div class="row">
+        <!-- 왼쪽 -->
+        <div class="col-10">
+            <form action="#" th:action="@{|/products/${product.id}/repayment-schedules|}" th:object="${form}" method="post">
+                <div class="card shadow mb-4">
+                    <a href="#schedule" class="d-block card-header py-3" data-toggle="collapse" role="button" aria-expanded="true">
+                        <h6 class="m-0 font-weight-bold text-primary">상환 스케줄</h6>
+                    </a>
+
+                    <div class="card-body p-2 collapse show" id="schedule">
+                        <div class="table-responsive">
+                            <table class="table table-bordered mb-0">
+                                <tr class="bg-gray-200">
+                                    <td>회차</td><td>상환일자</td><td>원금</td><td>기본 이자</td><td>최대 이자</td>
+                                </tr>
+                                <th:block th:each="e, itemStat : *{list}">
+                                    <tr>
+                                        <td><input type="text" class="form-control" th:field="*{list[__${itemStat.index}__].sequence}" readonly></td>
+                                        <td><input type="date" class="form-control" th:field="*{list[__${itemStat.index}__].repaymentDate}" ></td>
+                                        <td><input type="number" class="form-control" th:field="*{list[__${itemStat.index}__].principal}" readonly></td>
+                                        <td><input type="number" class="form-control" th:field="*{list[__${itemStat.index}__].interest}" ></td>
+                                        <td><input type="number" class="form-control" th:field="*{list[__${itemStat.index}__].maxInterest}" ></td>
+                                    </tr>
+                                </th:block>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-block align-self-center">
+                    <button class="w-100 btn btn-primary btn-lg" type="submit">스케줄 등록</button>
+                </div>
+            </form>
+
+        </div>
+
+    </div>
+
+    <hr />
+
+    <div class="row">
+    </div>
+
+</th:block>

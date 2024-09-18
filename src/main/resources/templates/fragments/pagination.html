@@ -1,0 +1,38 @@
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+
+<nav th:fragment="pagination" aria-label="Page navigation Pagination" th:if="${!list.isEmpty()}">
+    <ul class="pagination justify-content-center" th:with=
+            "start=${list.number < 5 ? 0 : list.number - 5},
+                        last=${list.number < 5 ? (list.totalPages < 10 ? list.totalPages - 1 : 10) :
+                        (list.number + 5 > list.totalPages ? list.totalPages - 1 : list.number + 5)}">
+        <li class="page-item" th:classappend="${list.first} ? 'disabled'">
+            <a th:href="@{''(page=0)}" aria-label="First" class="page-link">
+                <span aria-hidden="true">First</span>
+            </a>
+        </li>
+        <!-- 이전 페이지로 가기 버튼 -->
+        <li class="page-item" th:classappend="${list.first} ? 'disabled'">
+            <a th:href="@{''(page=${list.number - 1})}" aria-label="Previous" class="page-link">
+                <span aria-hidden="true">&lt;</span>
+            </a>
+        </li>
+        <!--1,2,3,4,.. 등 페이지-->
+        <li class="page-item" th:classappend="${page == list.number} ? 'disabled font-weight-bold'"
+            th:each="page: ${#numbers.sequence(start, last)}">
+            <a th:text="${page + 1}" th:href="@{''(page=${page})}" class="page-link"></a>
+        </li>
+        <!--다음 페이지로 -->
+        <li class="page-item" th:classappend="${list.last} ? 'disabled'">
+            <a th:href="@{''(page=${list.number + 1})}" aria-label="Next" class="page-link">
+                <span aria-hidden="true">&gt;</span>
+            </a>
+        </li>
+        <!--맨 마지막 페이지로 이동 -->
+        <li class="page-item" th:classappend="${list.last} ? 'disabled'">
+            <a th:href="@{''(page=${list.totalPages - 1})}" aria-label="Last" class="page-link">
+                <span aria-hidden="true">Last</span>
+            </a>
+        </li>
+    </ul>
+</nav>
+</html>

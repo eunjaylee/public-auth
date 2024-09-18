@@ -1,0 +1,254 @@
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns="http://www.w3.org/1999/html"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/layoutBase}">
+
+<th:block layout:fragment="content">
+    <style>
+
+    .form-control2 {
+      /* display: block; */
+      /* width: 100%; */
+      max-width: 200px;
+      height: calc(1.5em + 0.5rem + 2px);
+      padding: 0.375rem 0.5rem;
+      font-size: small;
+      font-weight: 400;
+      line-height: 1.5;
+      color: #6e707e;
+      background-color: #fff;
+      background-clip: padding-box;
+      border: 1px solid #d1d3e2;
+      border-radius: 0.35rem;
+      transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+    }
+    </style>
+
+    <div class="row">
+        <!-- 왼쪽 -->
+        <div class="col-9">
+            <div class="card shadow">
+                <a href="#product" class="d-block card-header py-3" data-toggle="collapse" role="button" aria-expanded="true">
+                    <h6 class="m-0 font-weight-bold text-primary">상품 정보</h6>
+                </a>
+
+                <div class="card-body p-2 collapse show" id="product">
+                        <div class="table-responsive">
+                            <table class="table table-bordered mb-0">
+                                <tr><td style="width:250px;">번호</td>
+                                    <td>
+                                        [[${product.id}]]
+                                        <input type="hidden" id="productId" th:value="${product.id}">
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>메인 이미지</td>
+                                    <td>
+                                        <img th:src="${product.mainImageSrc}" style="width:300px;" id="previewMainImg"><BR>
+                                        <Form id="fileForm" >
+                                        <input type="file" name="file"> <input type="button" id="attachFile" value="파일업로드">
+                                        </Form>
+                                        <input type="hidden" id="mainImageSrc" th:value="${product.mainImageSrc}">
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td>대출선택</td>
+                                    <td>
+                                        <input type="text" id="loanSeq" class="form-control2" th:value="${product.loanSeq}" >
+                                        <a href="javascript:alert('TODO :레이어 팝업에서 대출을 선택하자')">대출계약 변경</a>
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td>이름</td>
+                                    <td><input type="text" id="productName" class="form-control" th:value="${product.productName}" ></td>
+                                </tr>
+
+                                <tr>
+                                    <td>태그</td>
+                                    <td><input type="text" id="tags" class="form-control" th:value="${product.tags}" ></td>
+                                </tr>
+
+                                <tr>
+                                    <td>투자 일시</td>
+                                    <td>
+                                        <input type="date"  id="investStartAt" class="form-control2"  th:if="${product.investStartAt != null}" th:value="${#strings.setSplit(product.investStartAt, 'T')[0]}" >
+                                        <input type="date"  id="investStartAt" class="form-control2"  th:if="${product.investStartAt == null}"  >
+                                        ~
+                                        <input type="date"  id="investEndAt" class="form-control2"  th:if="${product.investEndAt != null}"   th:value="${#strings.setSplit(product.investEndAt, 'T')[0]}" >
+                                        <input type="date"  id="investEndAt" class="form-control2"  th:if="${product.investEndAt == null}"  >
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td>모집 금액</td>
+                                    <td><input type="text" id="totalAmount"  class="form-control" th:value="${product.totalAmount}" ></td>
+                                </tr>
+
+
+                                <tr>
+                                    <td>준법감시인 심사일</td>
+                                    <td>
+                                        <input type="text" id="confirmAt" class="form-control" th:if="${product.confirmAt != null}" th:value="${#strings.setSplit(product.confirmAt, 'T')[0]}" >
+                                        <input type="text" id="confirmAt" class="form-control" th:if="${product.confirmAt == null}"  >
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td>이자 지급일</td>
+                                    <td><input type="text" id="interestPaymentDay" class="form-control" th:value="${product.interestPaymentDay}" ></td>
+                                </tr>
+
+                                <tr>
+                                    <td>투자 실행일자</td>
+                                    <td><input type="date"  id="executionDate" class="form-control" th:value="${product.executionDate}" ></td>
+                                </tr>
+
+                                <tr>
+                                    <td>대출기간 개월</td>
+                                    <td><input type="text" id="loanPeriodMonth" class="form-control" th:value="${product.loanPeriodMonth}" ></td>
+                                </tr>
+
+                                <tr>
+                                    <td>대출만기일</td>
+                                    <td>
+                                        <input type="date" id="loanExpireDay" class="form-control" th:if="${product.loanExpireDay != null}" th:value="${#strings.setSplit(product.loanExpireDay, 'T')[0]}" >
+                                        <input type="date" id="loanExpireDay" class="form-control" th:if="${product.loanExpireDay == null}"  >
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td>대출 상환계좌</td>
+                                    <td>
+                                        <input type="text" id="vtAccountNo"  class="form-control col-5" style="display:inline;max-width:65%" th:value="${product.vtAccountNo}" readonly>
+                                        <input type="button" class="form-control" style="display:inline;max-width:30%" value="계좌발급">
+                                    </td>
+                                </tr>
+
+                            </table>
+                        </div>
+
+                        <div class="d-block col-12 align-self-center">
+                            <button class="w-100 btn btn-primary btn-lg m-1 col-3" id="productSave">수정</button>
+                        </div>
+                    </form>
+
+
+
+                    <hr />
+<!--                    <div class="row">-->
+<!--                        <form class="m-1 col-3" th:action="@{|/products/${product.id}|}" th:method="delete" onclick="if (!confirm('are you sure?')) return false;">-->
+<!--                            <button class="w-100 btn btn-danger btn-sm" type="submit">모집 이전 취소</button>-->
+<!--                        </form>-->
+<!--                        <form class="m-1 col-3" th:action="@{|/products/${product.id}/on-going|}" th:method="delete" onclick="if (!confirm('are you sure?')) return false;">-->
+<!--                            <button class="w-100 btn btn-danger btn-sm" type="submit">모집중 취소</button>-->
+<!--                        </form>-->
+<!--                    </div>-->
+                </div>
+            </div>
+    </div>
+    <script>
+
+
+    $("#attachFile").on("click", function(event) {
+        event.preventDefault();
+
+        var formData = new FormData($("#fileForm")[0]);
+        $.ajax({
+            url : "https://api-gw.dozip.kr/common/v1/attachFile",
+            type: 'post',
+            data : formData,
+            cache : false,
+            contentType: false,
+            processData: false,
+            success : function(attachs, jqXHR, textStatus) {
+                console.log(attachs);
+                $("#previewMainImg").attr("src", attachs[0].filePath);
+                $("#mainImageSrc").val(attachs[0].filePath);
+            }
+        });
+
+   });
+
+
+    $("#productSave").on("click", function() {
+
+       var product = {
+            "id"               : $("#productId").val(),
+            "loanSeq"          : $("#loanSeq").val(),
+            "mainImageSrc"     : $("#mainImageSrc").val(),
+            "productName"      : $("#productName").val(),
+            "tags"             : $("#tags").val(),
+            "investStartAt"    : $("#investStartAt").val(),
+            "investEndAt"      : $("#investEndAt").val(),
+            "totalAmount"      : $("#totalAmount").val(),
+            "confirmAt"        : $("#confirmAt").val(),
+            "interestPaymentDay" : $("#interestPaymentDay").val(),
+            "executionDate"    : $("#executionDate").val(),
+            "loanPeriodMonth"  : $("#loanPeriodMonth").val(),
+            "loanExpireDay"    : $("#loanExpireDay").val(),
+            "vtAccountNo"      : $("#vtAccountNo").val()
+        };
+
+        console.log(JSON.stringify(product));
+
+
+        $.ajax({
+            url : "/proxy/grayzip/v1/products",
+            type: 'post',
+            accept: "application/json",
+            contentType: "application/json; charset=utf-8",
+            data : JSON.stringify(product),
+            cache : false,
+            success : function(data) {
+                alert("상품정보가 수정되었습니다.");
+                location.reload();
+            },
+            error: function(request, error) {
+                console.log(request);
+                console.log(error);
+                alert("상품 수정중 오류가 발생했습니다. 다시 시도해주세요!");
+            }
+        });
+    });
+
+    </script>
+    <hr />
+
+
+
+        <!-- 오른쪽 -->
+        <div class="col-3">
+            <div class="card shadow mb-4">
+
+                <a href="#note" class="d-block card-header py-3" data-toggle="collapse" role="button" aria-expanded="true">
+                    <h6 class="m-0 font-weight-bold text-primary">변경노트</h6>
+                </a>
+
+                <div class="card-body p-2">
+
+                    <div class="col-12 mb-2">
+                        <label for="memo">메모</label>
+                        <textarea id="memo"  class="form-control" style="min-height: 10vh"></textarea>
+                    </div>
+
+                    <div class="d-block col-12 align-self-center">
+                        <select id="status">
+                            <option value="">메모작성</option>
+                            <option value="AUDIT">심사중으로 상태변경</option>
+                            <option value="APPROVAL">승인으로 상태변경</option>
+                            <option value="REJECT">거절로 상태변경</option>
+                        </select>
+                        <button class="w-100 btn btn-success btn-sm m-1 col-3"  id="changeState">실행</button>
+                    </div>
+
+                </div>
+                <hr>
+                <div class="card-body p-2 collapse show" id="note">
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+</th:block>

@@ -1,0 +1,261 @@
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns="http://www.w3.org/1999/html"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/layoutBase}">
+
+
+<th:block layout:fragment="content">
+    <script
+            src="https://code.jquery.com/jquery-3.6.4.min.js"
+            integrity="sha256-oP6HI9z1XaZNBrJURtCoUT5SUnxFr8s3BzRl+cbzUq8="
+            crossorigin="anonymous"></script>
+    <script src="/js/tinymce_6.4.1/tinymce/js/tinymce/tinymce.min.js" referrerpolicy="origin"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.13.2/themes/base/jquery-ui.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.13.2/jquery-ui.min.js"></script>
+
+
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">이용약관</h6>
+        </div>
+        <hr />
+
+        <div class="card-body">
+            <div class="form-group">
+                <div style="font: bold 2.0em/1.0em 돋움체;">
+                타입 :
+                    <select name="termsType" id="termsType" style="font-size:15px; margin:5px;padding:3px;">
+                        <option value="BASIC"  th:selected="${terms != null} ? ${#strings.equals(terms.termsType, 'BASIC')}: false" >기본약관</option>
+                        <option value="INVEST" th:selected="${terms != null} ? ${#strings.equals(terms.termsType, 'INVEST')}: false">투자자약관</option>
+                        <option value="LOAN"   th:selected="${terms != null} ? ${#strings.equals(terms.termsType, 'LOAN')}: false"  >대출자약관</option>
+                        <option value="MVNO"   th:selected="${terms != null} ? ${#strings.equals(terms.termsType, 'MVNO')}: false"  >알뜰폰약관</option>
+                    </select>
+                제목 :  <input  name="termsTitle" id="termsTitle"  class="form-control" style="width:70%; display:inline" th:value="${terms?.termsTitle}" >
+                시행일자 :
+                    <select id="choseApplyDate">
+                        <th:block th:each="recode : ${terms?.termsRecodeList}">
+                        <option th:value="${recode.termsRecodeSeq}" th:selected="${terms.termsRecodeSeq} == ${recode.termsRecodeSeq}"  >[[${recode.termsApplyDate}]]</option>
+                        </th:block>
+                        <option value="0">new</option>
+                    </select>
+                </div>
+                <input type="hidden" id="termsSeq"    value="0" th:value="${terms?.termsSeq}">
+                <input type="hidden" id="termsStatus" value="PRIVATE" th:value="${terms?.termsStatus}">
+                <input type="hidden" id="requireYn"   value="Y" th:value="${terms?.requireYn}">
+                <input type="hidden" id="termsOrder"  value="0" th:value="${terms?.termsOrder}">
+            </div>
+            <div class="form-group">
+            <div id="xmpContent" style="display:none">[[${terms?.termsContent}]]</div>
+            <textarea id="termsContent" class="form-control" style="height: 300px; "></textarea>
+            </div>
+        </div>
+
+        <div class="card-body">
+            <div class="form-group">
+                <div>약관 시행일자 :
+                    <input type="text" id="termsApplyDate" class="datepicker" value="" th:value="${terms?.termsApplyDate}">
+                    <input type="hidden" id="termsRecodeSeq"  th:value="${terms?.termsRecodeSeq}">
+                    <input type="hidden" id="updateAt"  >
+                </div>
+            </div>
+        </div>
+
+
+        <div class="card-body">
+            <div class="btn btn-default btn-file">
+                파일 경로 : <input type="text" id="termsUrl" th:value="${terms?.termsUrl}">
+                <Form id="fileForm" >
+                    <i class="fas fa-paperclip"></i> Attachment
+                    <input type="file" name="file">
+                    <button class="w-10 btn btn-success btn-middle" id="attachFile" >file upload</button>
+                </Form>
+
+            </div>
+            <p class="help-block">Max. 32MB / 0MB</p>
+        </div>
+
+        <div class="form-group" style="text-align:center">
+            <button class="w-10 btn btn-primary btn-middle saveTerms" data-status="PRIVATE" >비공개 저장</button>
+            <button class="w-10 btn btn-success btn-middle saveTerms" data-status="PUBLIC" >공개 저장</button>
+            <button class="w-10 btn btn-secondary" id="cancel" >취소</button>
+        </div>
+    </div>
+<script>
+
+
+  var editor = tinymce.init({
+      selector: 'textarea#termsContent',
+      height: 500,
+      setup: function(editor) {
+        editor.on('init', function(e) {
+            editor.setContent($("#xmpContent").text());
+        });
+      },
+      plugins: [
+        'advlist', 'autolink', 'lists', 'link', 'image', 'charmap', 'preview',
+        'anchor', 'searchreplace', 'visualblocks', 'code', 'fullscreen',
+        'insertdatetime', 'media', 'table', 'help', 'wordcount'
+      ],
+      toolbar: 'undo redo | blocks | ' +
+      'bold italic backcolor | alignleft aligncenter ' +
+      'alignright alignjustify | bullist numlist outdent indent | ' +
+      'removeformat | help',
+      content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:16px }'
+    });
+
+
+    $(".saveTerms").on("click", function() {
+        var termsSeq = $("#termsSeq").val();
+        var termsStatus = $(this).data("status");
+
+        if(title == "") {
+          alert("제목은 입력하셔야 합니다.");
+          return;
+        }
+
+        var title = $("#termsTitle").val();
+
+        var terms = {
+            "termsType"  : $("#termsType").val(),
+            "termsTitle" : title,
+            "termsStatus": $("#termsStatus").val(),
+            "termsOrder" : $("#termsOrder").val(),
+            "requireYn"  : $("#requireYn").val(),
+        }
+
+        if(termsSeq != "") {
+            terms["termsSeq"] = termsSeq;
+        }
+
+        $.ajax({
+            url : "/proxy/common/v1/terms",
+            type: 'post',
+            accept: "application/json",
+            contentType: "application/json; charset=utf-8",
+            data : JSON.stringify(terms),
+            cache : false,
+            success : function(data) {
+                $("#termsSeq").val(data.termsSeq);
+                alert(data.termsSeq);
+                saveRecode(data.termsSeq, termsStatus);
+            },
+            error: function(request, error) {
+                console.log(request);
+                console.log(error);
+                alert("약관 제목 저장중 오류가 발생했습니다. 다시 시도해주세요!");
+            }
+        });
+    });
+
+    function saveRecode(seq, status) {
+        var termsUrl = $("#termsUrl").val() == "" ? "xxx" : $("#termsUrl").val();
+
+        var recode = {
+            "termsSeq": seq,
+            "termsApplyDate": $("#termsApplyDate").val(),
+            "termsContent": tinymce.get('termsContent').getContent(),
+            "termsStatus": status,
+            "termsUrl": termsUrl
+        };
+
+        var termsRecodeSeq = $("#termsRecodeSeq").val();
+
+        if(termsRecodeSeq != "" || termsRecodeSeq != 0) {
+            console.log("=============");
+            console.log(termsRecodeSeq);
+            recode["termsRecodeSeq"] = termsRecodeSeq;
+            // if($("#updateAt").val() != "")
+            //    recode["updateAt"] = $("#updateAt").val();
+        }
+
+        console.log(recode);
+        $.ajax({
+            url : "/proxy/common/v1/terms/termsRecode",
+            type: 'post',
+            accept: "application/json",
+            contentType: "application/json; charset=utf-8",
+            data : JSON.stringify(recode),
+            cache : false,
+            success : function(data) {
+                console.log(data)
+                alert("저장되었습니다.");
+                location.href="/board/terms/"+seq;
+            },
+            error: function(request, error) {
+                console.log(request);
+                console.log(error);
+                alert("약관 내용 저장중 오류가 발생했습니다. 다시 시도해주세요!");
+            }
+        });
+    }
+
+    $("#cancel").on("change", function() {
+        history.go(-1);
+    });
+
+
+    $("#choseApplyDate").on("change", function() {
+
+         var termsRecodeSeq = $(this).val();
+         $("#termsRecodeSeq").val(termsRecodeSeq);
+
+         if(termsRecodeSeq > 0) {
+             $.ajax({
+                url : "/proxy/common/v1/termsRecode/"+termsRecodeSeq,
+                type: 'get',
+                accept: "application/json",
+                contentType: "application/json; charset=utf-8",
+                cache : false,
+                success : function(data) {
+                    tinymce.get('termsContent').setContent(data.termsContent);
+                    $("#termsRecodeSeq").val(data.termsRecodeSeq);
+                    $("#termsApplyDate").val(data.termsApplyDate);
+                    $("#updateAt").val(data.updateAt);
+                    console.log(data);
+                    alert("내용을 불러왔습니다.");
+                },
+                error: function(request, error) {
+                    alert("내용불러오는데 실패했습니다.");
+                }
+            });
+         }
+    });
+
+    $("#attachFile").on("click", function(event) {
+        event.preventDefault();
+
+        var formData = new FormData($("#fileForm")[0]);
+        $.ajax({
+            url : "https://api-gw.dozip.kr/common/v1/attachFile",
+            type: 'post',
+            data : formData,
+            cache : false,
+            contentType: false,
+            processData: false,
+            success : function(attachs, jqXHR, textStatus) {
+
+                $("#termsUrl").val(attachs[0].filePath);
+
+                /*
+                console.log(attachs);
+                attachs.forEach(function(data) {
+                    var row = "<tr><td>"+data.attachSeq+"</td>"
+                              + "<td>"+data.fileName+"</td>"
+                              + "<td>"+data.fileSize+"</td>"
+                              + "<td><input type='button' value='del'>"
+                              + "<input type='button' class='appendImg' data-attachseq='"+data.attachSeq+"' data-path='"+data.filePath+"' value='editor add'>"
+                              + "</td>"
+                              + "</tr>";
+                    $("#fileListTb").append(row);
+                    fileList.push(data.attachSeq);
+                });
+                */
+            }
+        });
+
+   });
+
+
+</script>
+</th:block>
+
+

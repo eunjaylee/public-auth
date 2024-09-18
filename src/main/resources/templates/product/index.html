@@ -1,0 +1,98 @@
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns="http://www.w3.org/1999/html"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/layoutBase}">
+
+<th:block layout:fragment="content">
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">상품</h6>
+        </div>
+
+        <div class="card-body">
+            <form class="form-row col-10" th:action="@{/products}" method="get">
+                <div>기간 검색 : <input type="text" id="startedAt" class="datepicker" value="" th:value="${startAt}" >
+                    ~  <input type="text" id="finishedAt" class="datepicker" value="" th:value="${endAt}" >
+                </div>
+                <select class="col-2 form-select" id="status" name="status">
+                    <option value="">선택하세요.</option>
+                    <option th:each="status : ${productStatusList}" th:value="${status.name}">[[${status.name}]]</option>
+                </select>
+
+                <div class="col-2 d-block align-self-center">
+
+                    <button class="w-100 btn btn-primary btn-middle" type="submit">조회</button>
+
+                    <a href="/products/new">신규등록</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <hr class="my-4" />
+
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">상품 내역</h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered">
+                    <tr class="bg-gray-200">
+                        <td>번호</td><td>메인이미지</td><td>상품 이름</td>
+                        <td>모집 금액</td><td>최초 수익율 (%)</td>
+                        <td>최대 수익율 (%)</td>
+                        <td>모집 기간</td>
+                        <td>청약인원</td>
+                        <td>상태</td>
+                    </tr>
+                    <th:block th:each="e : ${list}">
+                        <tr  th:style="${e.likeCnt == 1 ? 'background-color:pink' : ''}" >
+                            <td>[[${e.id}]]</td>
+                            <td>
+                                <img th:src="${e.mainImageSrc}" style="width:200px;" th:attr="data-product=${e.id}" class="toggleLike">
+                            </td>
+                            <td><a th:href="@{|/products/${e.id}|}">[[${e.apartmentName}]]</a></td>
+                            <td>[[${e.sumOfferAmount}]] / [[${e.totalAmount}]]</td>
+                            <td>[[${e.interestRate}]]</td>
+                            <td>[[${e.maxInterestRate}]]</td>
+                            <td>
+                            <span th:if="${e.investStartAt != null}" th:text="${#strings.setSplit(e.investStartAt, 'T')[0]}">
+                            </span> ~
+                            <span th:if="${e.investEndAt != null}" th:text="${#strings.setSplit(e.investEndAt, 'T')[0]}">
+                            </span>
+                            </td>
+                            <td><a href="">상세보기</a></td>
+                            <td>[[${e.state}]]</td>
+                        </tr>
+                    </th:block>
+                </table>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        $(".toggleLike").on("click", function() {
+             var productId = $(this).data("product");
+             var tr = $(this).parent().parent()
+             $.ajax({
+                url : "/proxy/grayzip/v1/products/like/"+productId,
+                type: 'POST',
+                accept: "application/json",
+                contentType: "application/json; charset=utf-8",
+                cache : false,
+                success : function(data) {
+                    console.log(data);
+                    if(data.result == "like")
+                        tr.css("background-color", "pink");
+                    else
+                        tr.css("background-color", "#FFFFFF");
+                },
+                error: function(request, error) {
+                    alert("메인 상품 설정에 실패했습니다.");
+                }
+            });
+        });
+    </script>
+
+</th:block>

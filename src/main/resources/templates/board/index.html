@@ -1,0 +1,131 @@
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns="http://www.w3.org/1999/html"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/layoutBase}">
+
+<th:block layout:fragment="content">
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">[[${boardType}]]</h6>
+        </div>
+
+        <div class="card-body" style="text-align:right">
+            <!-- <a th:href="'/board/'+${boardType}+'/posts'">신규글 작성</a> -->
+            <select id="bulkType" style="font-size:20px; margin:5px;padding:3px;">
+                <option value="reOrder">순서변경</option>
+                <option value="use">사용</option>
+                <option value="notUse">사용안함</option>
+            </select>
+            <button class="w-10 btn btn-primary btn-middle" id="bulkAction">일괄변경</button>
+            &nbsp;
+            <button class="w-10 btn btn-success btn-middle" th:onclick="'location.href=\'/board/'+@{(${boardType})}+'/posts\''" >신규글 작성</button>
+
+            <div style="display:inline; text-align:left; width:700px" >
+            <form name="searchForm">
+                <input  name="searchKeyword" id="searchKeyword"  class="form-control" style="width:30%; display:inline" th:value="${param.searchKeyword}" >
+                <button class="w-10 btn btn-primary btn-middle" >검색</button>
+            </form>
+            </div>
+
+
+        </div>
+
+        <hr />
+
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered" id="listTable">
+                    <colgroup>
+                        <col style="width:3%;">
+                        <col style="width:5%;">
+                        <col style="width:45%;">
+                        <col style="width:10%;">
+                        <col style="width:10%;">
+                        <col style="width:5%;">
+                    </colgroup>
+                    <tr class="bg-gray-200">
+                        <td><input type="checkbox" id="allCheck" /></td>
+                        <td>번호</td>
+                        <td>제목</td>
+                        <td>작성자</td>
+                        <td>작성일</td>
+                        <td>사용여부</td>
+                    </tr>
+                    <th:block th:each="e : ${list}">
+                        <tr>
+                            <td><input type="checkbox" name="bulk" value="" th:value="${e.postSeq}"></td>
+                            <td>[[${e.postSeq}]]</td>
+                            <td><a th:href="'/board/'+${boardType}+'/posts/'+${e.postSeq}">[[${e.postTitle}]]</a>
+                                <a th:if="${not #strings.isEmpty(e.tag)}" href="#" class="btn btn-secondary btn-icon-split" style="padding:0.01rem 0.01rem; font-size:0.5rem"><span class="text"> [[${e.tag}]]</span>
+                            </td>
+                            <td th:if="${not #strings.isEmpty(e.userId)}">
+                                [[${e.userId}]]
+                            </td>
+
+                            <td>[[${e.createAt}]]</td>
+                            <td>[[${e.postStatus}]]</td>
+                        </tr>
+                    </th:block>
+                </table>
+            </div>
+            <div th:insert="~{fragments/pagination :: pagination}"></div>
+        </div>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/TableDnD/0.9.1/jquery.tablednd.js" integrity="sha256-d3rtug+Hg1GZPB7Y/yTcRixO/wlI78+2m08tosoRn7A=" crossorigin="anonymous"></script>
+
+
+    <script>
+        $("#allCheck").change(function() {
+            var checked = $("#allCheck").prop("checked");
+            $("[name='bulk']").attr("checked", checked);
+        });
+
+        $(document).ready(function() {
+            // Initialise the table
+            $("#listTable").tableDnD();
+        });
+
+
+        $("#bulkAction").on("click", function() {
+
+            var bulkArray = [];
+
+            $("[name='bulk']:checked").each(function(idx, data) {
+                bulkArray.push($(data).val());
+            })
+
+            if(bulkArray.length == 0) {
+                alert("1건이상 선택하세요");
+                return;
+            }
+
+            var bulkType = $("#bulkType").val();
+
+            var uri = "/board/post/order";
+
+            if(bulkType == "use") {
+                uri = "/board/post/status/use";
+            } else if(bulkType == "notUse") {
+                uri = "/board/post/status/notUse";
+            }
+
+            $.ajax({
+                url : uri,
+                type: 'post',
+                accept: "application/json",
+                contentType: "application/json; charset=utf-8",
+                data : JSON.stringify(bulkArray),
+                cache : false,
+                success : function(data) {
+                    alert("저장되었습니다.");
+                    location.reload();
+                },
+                error: function(request, error) {
+                    console.log(request);
+                    console.log(error);
+                }
+            });
+        });
+
+    </script>
+
+</th:block>

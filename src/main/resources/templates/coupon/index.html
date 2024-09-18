@@ -1,0 +1,294 @@
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns="http://www.w3.org/1999/html"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/layoutBase}">
+
+<th:block layout:fragment="content">
+    <style>
+
+    .form-control2 {
+      /* display: block; */
+      /* width: 100%; */
+      max-width: 200px;
+      height: calc(1.5em + 0.5rem + 2px);
+      padding: 0.375rem 0.5rem;
+      font-size: small;
+      font-weight: 400;
+      line-height: 1.5;
+      color: #6e707e;
+      background-color: #fff;
+      background-clip: padding-box;
+      border: 1px solid #d1d3e2;
+      border-radius: 0.35rem;
+      transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+    }
+    </style>
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">담보</h6>
+        </div>
+
+        <div class="card-body">
+            <form class="form-row col-10" th:action="@{/collaterals}" method="get">
+
+                <div>기간 검색 : <input type="text" id="startedAt" class="datepicker" value="" th:value="${startAt}" >
+                        ~  <input type="text" id="finishedAt" class="datepicker" value="" th:value="${endAt}" >
+                </div>
+
+                <select class="col-2 form-select" id="status" name="status">
+                    <option value="">선택하세요.</option>
+                    <option th:each="status : ${collateralStatusList}" th:value="${status.name}">[[${status.name}]]</option>
+                </select>
+
+                <div class="col-2 d-block align-self-center">
+                    <button class="w-100 btn btn-primary btn-middle" type="submit">조회</button>
+                </div>
+            </form>
+            <div class="col-2 d-block align-self-center">
+                <button class="w-100 btn btn-primary btn-middle" id="newCoupon">신규 생성</button>
+            </div>
+        </div>
+    </div>
+
+    <hr class="my-4" />
+
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">쿠폰 목록</h6>
+        </div>
+
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered">
+                    <tr class="bg-gray-200">
+                        <td>코드</td>
+                        <td>쿠폰이름</td>
+                        <td>발행금액</td>
+                        <td>만료 타입</td>
+                        <td>쿠폰만료일</td>
+                        <td>수량제한여부</td>
+                        <td>적용 가능상품</td>
+                        <td>쿠폰사용여부</td>
+                        <td>등록직원 이메일</td>
+                    </tr>
+                    <th:block th:each="e : ${list}">
+                        <tr>
+                            <td><span class="code-click">[[${e.couponCode}]]</span></td>
+                            <td>[[${e.couponName}]]</td>
+                            <td>[[${e.couponAmount}]]</td>
+                            <td>[[${e.expiredType}]]</td>
+                            <td>[[${e.fixedRate}]] / [[${e.fixedDelay}]]</td>
+                            <td>[[${e.limitYn}]] /  [[${e.totalSupply}]] </td>
+                            <td>[[${e.productId}]]</td>
+                            <td>[[${e.useYn}]]</td>
+                            <td>[[${e.employId}]]</td>
+                        </tr>
+                    </th:block>
+                </table>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="modal" id="modal"  role="dialog" aria-labelledby="remoteModalLabel"  >
+        <div class="modal-dialog" style="width:80%; max-width:800px;">
+            <div class="modal-content" >
+                <div class="modal-header">
+                    <h4 class="modal-title" id="myModalLabel">쿠폰생성</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                        X
+                    </button>
+                </div>
+
+                <div class="modal-body">
+                    <div class="jarviswidget jarviswidget-color-blueDark"
+                         id="wid-id-4" data-widget-editbutton="false"
+                         data-widget-colorbutton="false"
+                         data-widget-deletebutton="false"
+                         data-widget-togglebutton="false">
+                        <div role="content">
+                            <div class="widget-body">
+                                <table class="table table-bordered" id="coupon">
+                                    <tbody>
+                                        <tr>
+                                            <td>쿠폰이름</td>
+                                            <td>
+                                                <input type="hidden" class="form-control col-5" id="couponCode" name="couponCode">
+                                                <input type="text" class="form-control col-5" id="couponName" name="couponName"></td>
+                                        </tr>
+                                        <tr>
+                                            <td>발행금액</td>
+                                            <td><input type="number" class="form-control col-5" id="couponAmount" name="couponAmount" value=""></td>
+                                        </tr>
+                                        <tr>
+                                            <td>만료타입</td>
+                                            <td>
+                                                <select id="expiredType" name="expiredType" >
+                                                    <option value="FIXED">지정일</option>
+                                                    <option value="DELAY">발행일 부터~</option>
+                                                </select>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>만료일</td>
+                                            <td><input type="date" id="fixedRate" name="fixedRate" class="form-control col-5" value="">
+                                                <input type="text" id="fixedDelay" name="fixedDelay" class="form-control col-5" value="0" style="display:none">
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>수량제한 <input type="checkbox" id="limitYn" name="limitYn" value="Y"></td>
+                                            <td>
+                                                <input type="text" class="form-control col-5" id="totalSupply" name="totalSupply" value="0" readonly>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>적용상품</td>
+                                            <td>
+                                                <select id="productId" name="productId">
+                                                    <option value="0">모든상품</option>
+                                                    <option value="1">상품1</option>
+                                                    <option value="2">상품2</option>
+                                                </select>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>쿠폰사용여부</td>
+                                            <td>
+                                                <select id="duplicateYn">
+                                                    <option value="N">중복발행불가</option>
+                                                    <option value="Y">중복발행가능</option>
+                                                </select>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>쿠폰사용여부</td>
+                                            <td>
+                                                <select id="useYn">
+                                                    <option value="N">사용불가</option>
+                                                    <option value="Y">사용</option>
+                                                </select>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">닫기</button>
+                    <button type="button" class="btn btn-primary" id="btn_save">저장</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+
+        $(".code-click").on("click", function() {
+            var codeId = $(this).text();
+            $.ajax({
+                url : "/proxy/grayzip/v1/coupon/master/"+codeId,
+                type: 'GET',
+                accept: "application/json",
+                contentType: "application/json; charset=utf-8",
+                cache : false,
+                success : function(data) {
+                    console.log(data);
+                    Object.keys(data).forEach(function(key){
+                         if($("#"+key).attr("type") == "checkbox") {
+                            if(data[key] == "Y") $("#"+key).prop("checked", true);
+                            else $("#"+key).prop("checked", false);
+                            $("#"+key).trigger('change');
+                         } else if($("#"+key).prop('tagName') == "SELECT") {
+                            console.log(key);
+                            $("#"+key).val(data[key]).prop("selected", true);
+                            $("#"+key).trigger('change');
+                         } else {
+                            $("#"+key).val(data[key]);
+                         }
+                    })
+                    $("#modal").modal("show");
+                },
+                error: function(request, error) {
+                    console.log(request);
+                    console.log(error);
+                    alert("차입자 정보를 가져오는 중에 오류가 발생했습니다.");
+                }
+            });
+        });
+
+        $("#newCoupon").on("click", function() {
+            $("#couponCode").val("");
+            $("#modal").modal("show");
+        });
+
+        $("#limitYn").on("change", function() {
+
+            console.log($(this).is(":checked"));
+
+            if($(this).is(":checked")) {
+               $("#totalSupply").removeAttr("readonly");
+            } else {
+               $("#totalSupply").attr("readonly", true);
+               $("#totalSupply").val(0);
+            }
+        });
+
+        $("#expiredType").on("change", function() {
+            console.log($(this).val());
+
+            if ( $(this).val() == "DELAY") {
+                $("#fixedDelay").show();
+                $("#fixedRate").hide();
+            } else {
+                $("#fixedDelay").hide();
+                $("#fixedRate").show();
+            }
+        });
+
+        $("#btn_save").on("click", function() {
+            var couponMaster = {
+                "couponName"  : $("#couponName").val(),
+                "expiredType" : $("#expiredType").val(),
+                "fixedRate"   : $("#fixedRate").val(),
+                "fixedDelay"  : $("#fixedDelay").val(),
+                "limitYn"     : $("#limitYn").is(":checked") ? "Y" : "N",
+                "totalSupply" : $("#totalSupply").val(),
+                "productId"   : $("#productId").val(),
+                "duplicateYn" : $("#duplicateYn").val(),
+                "useYn"       : $("#useYn").val(),
+                "couponAmount": $("#couponAmount").val()
+           };
+
+            if($("#couponCode").val() != "")
+                couponMaster["couponCode"] = $("#couponCode").val()
+
+           console.log(JSON.stringify(couponMaster));
+
+
+           $.ajax({
+                url : "/proxy/grayzip/v1/coupon/master",
+                type: 'post',
+                accept: "application/json",
+                contentType: "application/json; charset=utf-8",
+                data : JSON.stringify(couponMaster),
+                cache : false,
+                success : function(data) {
+                    alert("쿠폰이 정상 등록되었습니다.");
+                    location.reload();
+                },
+                error: function(request, error) {
+                    console.log(request);
+                    console.log(error);
+                    alert("쿠폰 등록중 오류가 발생했습니다. 다시 시도해주세요!");
+                }
+        });
+
+
+        });
+
+
+    </script>
+
+</th:block>

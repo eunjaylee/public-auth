@@ -1,0 +1,303 @@
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns="http://www.w3.org/1999/html"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/layoutBase}">
+
+
+<th:block layout:fragment="content">
+    <script
+            src="https://code.jquery.com/jquery-3.6.4.min.js"
+            integrity="sha256-oP6HI9z1XaZNBrJURtCoUT5SUnxFr8s3BzRl+cbzUq8="
+            crossorigin="anonymous"></script>
+    <script src="/js/tinymce_6.4.1/tinymce/js/tinymce/tinymce.min.js" referrerpolicy="origin"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.13.2/themes/base/jquery-ui.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.13.2/jquery-ui.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tag-it/2.0/js/tag-it.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tag-it/2.0/css/jquery.tagit.css" rel="stylesheet" type="text/css">
+
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">[[${boardType}]]</h6>
+        </div>
+        <hr />
+
+
+        <div class="card-body">
+            <div class="form-group">
+
+                <div style="font: bold 2.0em/1.0em 돋움체;">  태그 :  <input  name="tag" id="myTags" class="form-control" style="width:90%; display:inline" th:value="${post.tag}" ></div>
+                <div style="font: bold 2.0em/1.0em 돋움체;">  제목 :  <input  name="postTitle" id="postTitle"  class="form-control" style="width:90%; display:inline" th:value="${post.postTitle}" ></div>
+                <input type="hidden" id="postSeq" value="0" th:value="${post.postSeq}">
+                <input type="hidden" id="boardType"  th:value="${boardType}">
+                <input type="hidden" id="version"  th:value="${post.version}">
+            </div>
+            <div class="form-group">
+            <div id="xmpContent" th:text="${post.postContent}" style="display:none"></div>
+            <textarea id="postContent" class="form-control" style="height: 300px; "></textarea>
+            </div>
+        </div>
+
+        <div class="card-body">
+            <div class="form-group">
+                <div>이벤트 시작일시 : <input type="text" id="startedAt" class="datepicker" value="" th:value="${#strings.substring(post.postsPeriod?.startedAt, 0, 10)}" >
+                    ~ 이벤트 종료일시 : <input type="text" id="finishedAt" class="datepicker" value="" th:value="${#strings.substring(post.postsPeriod?.finishedAt, 0, 10)}" >
+                </div>
+            </div>
+        </div>
+
+        <div class="card-body">
+
+            <div style="text-align:right; padding-bottom: 10px">
+            <button class="w-10 btn btn-success btn-middle" id="metaAdd" >메타 추가</button>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-bordered">
+                    <tbody id="tableMeta">
+
+
+                        <tr class="bg-gray-200">
+                            <td >meta key</td>
+                            <td >meta value</td>
+                            <td >meta action</td>
+                        </tr>
+                        <th:block th:each="e, metaStat : ${post.metaList}">
+                        <tr th:id="'meta_'+${metaStat.index+1}">
+                            <td><input type="text" name="metaKey" class="form-control" value="" th:value="${e.pk.postMetaKey}"></td>
+                            <td><input type="text" name="metaValue" class="form-control" value="" th:value="${e.postMetaValue}"></td>
+                            <td><button class="w-10 btn btn-secondary btn-middle metaDel" th:attr="data-metarow=${metaStat.index+1}" >삭제</button></td>
+                        </tr>
+                        </th:block>
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="card-body">
+            <div class="btn btn-default btn-file">
+                <Form id="fileForm" >
+                <i class="fas fa-paperclip"></i> Attachment
+                <input type="file" name="file">
+                <button class="w-10 btn btn-success btn-middle" id="attachFile" >file upload</button>
+                </Form>
+
+            </div>
+            <p class="help-block">Max. 32MB / 0MB</p>
+        </div>
+
+        <div class="card-body" >
+            <div class="table-responsive">
+            <table class="table table-bordered" >
+                <tbody id="fileListTb">
+                <tr>
+                    <td>Seq</td>
+                    <td>FileName</td>
+                    <td>FileSize</td>
+                    <td>action</td>
+                </tr>
+                <th:block th:each="e : ${post.attachList}">
+                    <tr>
+                        <td th:text="${e.attachSeq}"></td>
+                        <td th:text="${e.fileName}"></td>
+                        <td th:text="${e.fileSize}"></td>
+                        <td><input type='button' value='del'> <input type='button' class='appendImg' th:attr="data-path=${e.filePath}"  value='editor add'></td></td>
+                    </tr>
+                </th:block>
+                </tbody>
+            </table>
+            </div>
+        </div>
+
+
+        <div class="form-group" style="text-align:center">
+            <button class="w-10 btn btn-primary btn-middle savePosts" data-status="PRIVATE"  >비공개 저장</button>
+            <button class="w-10 btn btn-success btn-middle savePosts" data-status="PUBLIC" >공개 저장</button>
+            <button class="w-10 btn btn-secondary" id="cancel" >취소</button>
+        </div>
+    </div>
+<script type="text/javascript" th:inline="javascript">
+ $(document).ready(function() {
+    var items =  /*[[${tags}]]*/
+
+    $("#myTags").tagit(
+    {
+        placeholderText: "tag를 선택 또는 추가하세요..",
+        availableTags: items,
+        autocomplete: {delay: 0, minLength: 1}
+    });
+
+ });
+
+
+
+
+</script>
+
+<script>
+
+  var postSeq = $("#postSeq").val();
+  var version = $("#version").val();
+  var boardType = $("#boardType").val();
+
+  var editor = tinymce.init({
+      selector: 'textarea#postContent',
+      height: 500,
+      setup: function(editor) {
+        editor.on('init', function(e) {
+            editor.setContent($("#xmpContent").text());
+        });
+      },
+      plugins: [
+        'advlist', 'autolink', 'lists', 'link', 'image', 'charmap', 'preview',
+        'anchor', 'searchreplace', 'visualblocks', 'code', 'fullscreen',
+        'insertdatetime', 'media', 'table', 'help', 'wordcount'
+      ],
+      toolbar: 'undo redo | blocks | ' +
+      'bold italic backcolor | alignleft aligncenter ' +
+      'alignright alignjustify | bullist numlist outdent indent | ' +
+      'removeformat | help',
+      content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:16px }'
+    });
+
+
+    $(".savePosts").on("click", function() {
+        var title = $("#postTitle").val();
+        var postStatus = $(this).data("status");
+
+        if(title == "") {
+            alert("제목은 입력하셔야 합니다.");
+            return;
+        }
+
+        editorContent = tinymce.get('postContent').getContent();
+
+        var postRequest = {
+            "postSeq" : postSeq,
+            "version" : version,
+            "postTitle" : $("#postTitle").val(),
+            "postContent" : editorContent,
+            "postStatus" : postStatus
+        }
+
+        var metaTr = $("#tableMeta").find("tr");
+        var metaList = [];
+        for(var i = 1; i < metaTr.length; i++) {
+            var tr = metaTr[i];
+            var pk = { "postSeq" : postSeq, "postMetaKey" : $(tr).find("[name='metaKey']").val() };
+            var meta = { "pk" : pk, "postMetaValue" : $(tr).find("[name='metaValue']").val() };
+            metaList.push(meta);
+        }
+        postRequest["metaList"] = metaList;
+
+        if($("#startedAt").val() != "") {
+            var startedAt = new Date($("#startedAt").val()).getTime();
+            var finishedAt = new Date($("#finishedAt").val()).getTime();
+
+            var postsPeriod = {"postSeq" : postSeq, "startedAt": startedAt, "finishedAt" : finishedAt };
+            postRequest["postsPeriod"] = postsPeriod;
+        }
+
+        postRequest["attachSeqList"] = fileList;
+
+        console.log(postRequest);
+
+        postRequest["tag"] = $("#myTags").val();
+
+        if(postRequest["tag"] !="") {
+            var tagList = postRequest["tag"].split(",");
+            $.ajax({
+                url : "/board/tags",
+                type: 'post',
+                accept: "application/json",
+                contentType: "application/json; charset=utf-8",
+                data : JSON.stringify(tagList),
+                cache : false,
+                success : function(data) {
+                    console.log(data);
+                }
+            });
+       }
+
+        $.ajax({
+            url : "/board/"+boardType+"/posts",
+            type: 'post',
+            accept: "application/json",
+            contentType: "application/json; charset=utf-8",
+            data : JSON.stringify(postRequest),
+            cache : false,
+            success : function(data) {
+                postSeq = data.postSeq;
+                version = data.version + 1;
+                alert("저장되었습니다.");
+                location.href= "/board/"+boardType;
+            },
+            error: function(request, error) {
+                console.log(request);
+                console.log(error);
+                alert("저장시 오류가 발생했습니다.");
+            }
+        });
+
+    });
+
+    var fileList = [];
+
+    $("#attachFile").on("click", function(event) {
+        event.preventDefault();
+
+        var formData = new FormData($("#fileForm")[0]);
+        $.ajax({
+            url : "https://api-gw.dozip.kr/common/v1/attachFile",
+            type: 'post',
+            data : formData,
+            cache : false,
+            contentType: false,
+            processData: false,
+            success : function(attachs, jqXHR, textStatus) {
+                console.log(attachs);
+                attachs.forEach(function(data) {
+                    var row = "<tr><td>"+data.attachSeq+"</td>"
+                              + "<td>"+data.fileName+"</td>"
+                              + "<td>"+data.fileSize+"</td>"
+                              + "<td><input type='button' value='del'>"
+                              + "<input type='button' class='appendImg' data-attachseq='"+data.attachSeq+"' data-path='"+data.filePath+"' value='editor add'>"
+                              + "</td>"
+                              + "</tr>";
+                    $("#fileListTb").append(row);
+                    fileList.push(data.attachSeq);
+                });
+            }
+        });
+
+   });
+
+   $(document).on("click", ".appendImg", function(event) {
+         var img = '<img alt="Smiley face" height="200" width="200" src="' + $(this).data("path") + '"/>';
+         console.log(img);
+         tinymce.get('postContent').insertContent(img);
+   });
+
+    // del id?
+    var metaId = $("#tableMeta").find("tr").length;
+
+   $("#metaAdd").on("click", function() {
+        metaId += 1;
+        var row = '<tr id="meta_'+metaId+'">'
+                +'<td><input type="hidden" name="postSeq" class="form-control" value="0">'
+                +'<input type="text" name="metaKey" class="form-control" value=""></td>'
+                +'<td><input type="text" name="metaValue" class="form-control" value=""></td>'
+                +'<td><button class="w-10 btn btn-secondary btn-middle metaDel" data-metarow="'+metaId+'" >삭제</button></td>'
+                +'</tr>';
+
+        $("#tableMeta").append(row);
+   });
+
+   $(document).on("click", ".metaDel", function() {
+       var delRow = "#meta_"+$(this).data("metarow");
+       $(delRow).remove();
+   });
+
+
+</script>
+</th:block>
+
+

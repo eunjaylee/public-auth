@@ -1,0 +1,50 @@
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns="http://www.w3.org/1999/html"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/layoutBase}">
+
+<th:block layout:fragment="content">
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">회원</h6>
+        </div>
+        <div class="card-body">
+            <form class="form-row col-12" >
+                <select id="type" name="searchType">
+                    <option value="email"  th:selected="${param.searchType != null} ? ${#strings.equals(param.searchType, 'email')}: false"  >email</option>
+                    <option value="name"   th:selected="${param.searchType != null} ? ${#strings.equals(param.searchType, 'name')}: false"  >이름</option>
+                    <option value="phone"  th:selected="${param.searchType != null} ? ${#strings.equals(param.searchType, 'phone')}: false" >전화번호</option>
+                </select>
+
+                <div class="col-2 d-block align-self-center">
+                    <input type="text" id="searchValue" name="searchValue" value=""  th:value="${param.searchValue}" class="form-control col-10" placeholder="">
+                </div>
+
+                <div class="col-2 d-block align-self-center">
+                    <button class="w-100 btn btn-primary btn-middle" type="submit">조회</button>
+                </div>
+            </form>
+        </div>
+
+        <hr />
+
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered">
+                    <tr class="bg-gray-200">
+                        <td>번호</td><td>이메일</td><td>이름</td><td>생년월일</td><td>성별</td><td>전화번호</td><td>통신사</td><td>가입일자</td>
+                    </tr>
+                    <tr th:each="user : ${userResult.content}">
+                        <td>[[${user.id}]]</td>
+                        <td><a th:href="@{|/users/${user.id}|}">[[${user.email}]]</a></td>
+                        <td>[[${user.name}]]</td>
+                        <td>[[${user.birthDate}]]</td>
+                        <td>[[${user.gender}]]</td>
+                        <td>[[${user.phone}]]</td>
+                        <td>[[${user.mobileCarrier}]]</td>
+                        <td>[[${user.createdAt}]]</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+</th:block>

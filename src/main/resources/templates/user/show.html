@@ -1,0 +1,237 @@
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns="http://www.w3.org/1999/html"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/layoutBase}">
+
+<th:block layout:fragment="content">
+    <div class="row">
+        <!-- 왼쪽 -->
+        <div class="col-5">
+            <div class="card shadow mb-4">
+                <a href="#personal" class="d-block card-header py-3" data-toggle="collapse" role="button" aria-expanded="true">
+                    <h6 class="m-0 font-weight-bold text-primary">기본정보</h6>
+                </a>
+
+                <div class="card-body p-2 collapse show" id="personal">
+                    <div class="table-responsive">
+                        <table class="table table-bordered mb-0">
+                            <tr><td>이메일</td><td>[[${userDto.email}]]</td></tr>
+                            <tr><td>이름</td><td>[[${userDto.name}]]</td></tr>
+                            <tr><td>생년월일</td><td>[[${userDto.birthDate}]]</td></tr>
+                            <tr><td>전화번호</td><td>[[${userDto.phone}]]</td></tr>
+                            <tr><td>통신사</td><td>[[${userDto.mobileCarrier}]]</td></tr>
+                            <tr><td>가입시각</td><td>[[${#temporals.format(userDto.createdAt, 'yyyy-MM-dd HH:mm:ss')}]]</td></tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card shadow mb-4">
+                <a href="#account" class="d-block card-header py-3" data-toggle="collapse" role="button" aria-expanded="true">
+                    <h6 class="m-0 font-weight-bold text-primary">계정정보</h6>
+                </a>
+
+                <div class="card-body p-2 collapse show" id="account">
+                    <div class="table-responsive">
+                        <table class="table table-bordered mb-0">
+                            <tr><td>외부 식별자</td><td>[[${user.uuid}]]</td></tr>
+                            <tr><td>내부 식별자</td><td>[[${user.id}]]</td></tr>
+                            <tr><td>PW 틀린 횟수</td><td>[[${user.passwordFailedAttempt}]]</td></tr>
+                            <tr><td>계정 잠김 상태</td><td>[[${user.lockedAt == null ? "정상" : "잠김"}]]</td></tr>
+                            <tr><td>PW 설정시각</td><td>[[${#temporals.format(user.passwordSetAt, 'yyyy-MM-dd HH:mm:ss')}]]</td></tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card shadow mb-4">
+                <a href="#kyc" class="d-block card-header py-3" data-toggle="collapse" role="button" aria-expanded="true">
+                    <h6 class="m-0 font-weight-bold text-primary">KYC 정보</h6>
+                </a>
+
+                <div class="card-body p-2 collapse show" id="kyc">
+                    <div class="table-responsive">
+                        <table class="table table-bordered mb-0">
+                            <tr class="bg-gray-200">
+                                <td>종류</td><td>이름</td><td>생년월일</td><td>상태</td><td>신청시각</td><td>인증시각</td>
+                            </tr>
+                            <th:block th:each="kyc : ${usebKycResList}">
+                                <tr>
+                                    <td>[[${kyc.identificationType}]]</td>
+                                    <td>[[${kyc.name}]]</td>
+                                    <td>[[${kyc.rrn}]]</td>
+                                    <td>[[${kyc.status}]]</td>
+                                    <td>[[${#temporals.format(kyc.createdAt, 'yyyy-MM-dd HH:mm:ss')}]]</td>
+                                    <td>[[${#temporals.format(kyc.verifiedAt, 'yyyy-MM-dd HH:mm:ss')}]]</td>
+                                </tr>
+                            </th:block>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="card shadow mb-4">
+                <a href="#marketing" class="d-block card-header py-3" data-toggle="collapse" role="button" aria-expanded="true">
+                    <h6 class="m-0 font-weight-bold text-primary">마케팅 정보</h6>
+                </a>
+
+                <div class="card-body p-2 collapse show" id="marketing">
+                    <div class="table-responsive">
+                        <table class="table table-bordered mb-0">
+                            <tr><td>동의여부</td><td>[[${notificationInformation.isMarketingAgreed}]]</td></tr>
+                            <tr><td>만료일자</td><td>[[${#temporals.format(notificationInformation.expiredAt, 'yyyy-MM-dd HH:mm:ss')}]]</td></tr>
+                        </table>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-bordered mb-0">
+                            <tr class="bg-gray-200">
+                                <td>SMS</td><td>이메일</td><td>카카오</td>
+                            </tr>
+                            <tr>
+                                <td>[[${notificationInformation.sms}]]</td>
+                                <td>[[${notificationInformation.email}]]</td>
+                                <td>[[${notificationInformation.kakao}]]</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 오른쪽 -->
+        <div class="col-5">
+            <div class="card shadow mb-4">
+                <a href="#wallet" class="d-block card-header py-3" data-toggle="collapse" role="button" aria-expanded="true">
+                    <h6 class="m-0 font-weight-bold text-primary">지갑정보</h6>
+                </a>
+
+                <div class="card-body p-2 collapse show" id="wallet">
+                    <div class="table-responsive">
+                        <table class="table table-bordered mb-0">
+                            <tr class="bg-gray-200">
+                                <td>통화</td><td>잔액</td><td>투자중</td><td>출금한도</td>
+                            </tr>
+                            <th:block th:each="wallet : ${walletList}">
+                                <tr>
+                                    <td>[[${wallet.currency}]]</td>
+                                    <td>[[${#numbers.formatDecimal(wallet.balance, 0, 'DEFAULT', 0, 'DEFAULT')}]]</td>
+                                    <td>[[${#numbers.formatDecimal(wallet.investmentMargin, 0, 'DEFAULT', 0, 'DEFAULT')}]]</td>
+                                    <td>[[${#numbers.formatDecimal(wallet.withdrawalLimit, 0, 'DEFAULT', 0, 'DEFAULT')}]]</td>
+                                </tr>
+                            </th:block>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card shadow mb-4">
+                <a href="#transfer" class="d-block card-header py-3" data-toggle="collapse" role="button" aria-expanded="true">
+                    <h6 class="m-0 font-weight-bold text-primary">입출금 내역</h6>
+                </a>
+
+                <div class="card-body p-2 collapse show" id="transfer">
+                    <div class="table-responsive">
+                        <table class="table table-bordered mb-0">
+                            <tr class="bg-gray-200">
+                                <td>입/출금</td><td>금액</td><td>상태</td><td>시각</td>
+                            </tr>
+                            <th:block th:each="transfer : ${transferList}">
+                                <tr>
+                                    <td>[[${transfer.transferType}]]</td>
+                                    <td>[[${#numbers.formatDecimal(transfer.amount, 0, 'DEFAULT', 0, 'DEFAULT')}]]</td>
+                                    <td>[[${transfer.status}]]</td>
+                                    <td>[[${#temporals.format(transfer.createdAt, 'yyyy-MM-dd HH:mm:ss')}]]</td>
+                                </tr>
+                            </th:block>
+                        </table>
+                    </div>
+                    <a class="d-flex justify-content-end" th:href="@{|/users/${user.id}/transfers|}">더보기➡</a>
+                </div>
+            </div>
+
+            <div class="card shadow mb-4">
+                <a href="#action" class="d-block card-header py-3" data-toggle="collapse" role="button" aria-expanded="true">
+                    <h6 class="m-0 font-weight-bold text-primary">이용내역</h6>
+                </a>
+
+                <div class="card-body p-2 collapse show" id="action">
+                    <div class="table-responsive">
+                        <table class="table table-bordered mb-0">
+                            <tr class="bg-gray-200">
+                                <td>API</td><td>결과</td><td>시각</td>
+                            </tr>
+                            <th:block th:each="action : ${userActionList}">
+                                <tr>
+                                    <td>[[${action.method}]] [[${action.path}]]</td>
+                                    <td>[[${action.statusCode}]]</td>
+                                    <td>[[${#temporals.format(action.createdAt, 'yyyy-MM-dd HH:mm:ss')}]]</td>
+                                </tr>
+                            </th:block>
+                        </table>
+                    </div>
+                    <a class="d-flex justify-content-end" th:href="@{|/users/${user.id}/actions|}">더보기➡</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-2">
+            <div class="col-10 d-block align-self-center">
+                <script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+                <script th:inline="javascript">
+                    const userId = [[${user.id}]];
+                    function execDaumPostcode() {
+                        new daum.Postcode({
+                            oncomplete: function(data) {
+                                console.log(data);
+                                // if (data.apartment !== 'Y') {
+                                //     alert("아파트 주소를 선택해야 합니다.");
+                                //     return;
+                                // }
+                                let param = $.param({
+                                    landLotAddress: data.jibunAddress || data.autoJibunAddress,
+                                    roadAddress: data.roadAddress || data.autoRoadAddress,
+                                    legalDongCode: data.bcode
+                                });
+                                const url = `/users/${userId}/collaterals/new?${param}`
+                                Object.assign(document.createElement('a'), {
+                                    // target: '_blank',
+                                    href: url,
+                                }).click();
+                                // window.open(url, '_blank');
+                            }
+                        }).open();
+                    }
+                </script>
+                <button class="w-100 btn btn-primary btn-sm" onclick="execDaumPostcode()" type="submit">담보 등록</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-10">
+            <div class="card shadow mb-4">
+                <a href="#bank-account" class="d-block card-header py-3" data-toggle="collapse" role="button" aria-expanded="true">
+                    <h6 class="m-0 font-weight-bold text-primary">계좌정보</h6>
+                </a>
+
+                <div class="card-body p-2 collapse show" id="bank-account">
+                    <div class="table-responsive">
+                        <table class="table table-bordered mb-0">
+                            <tr class="bg-gray-200">
+                                <td>타입</td><td>목적</td><td>은행</td><td>계좌번호</td><td>계좌주</td><td>인증시각</td>
+                            </tr>
+                            <th:block th:each="acct : ${bankAccountDtoList}">
+                                <tr>
+                                    <td>[[${acct.accountType}]]</td>
+                                    <td>[[${acct.purpose}]]</td>
+                                    <td>[[${acct.bankCode}]]</td>
+                                    <td>[[${acct.accountNumber}]]</td>
+                                    <td>[[${acct.holderName}]]</td>
+                                    <td>[[${#temporals.format(acct.verifiedAt, 'yyyy-MM-dd HH:mm:ss')}]]</td>
+                                </tr>
+                            </th:block>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</th:block>

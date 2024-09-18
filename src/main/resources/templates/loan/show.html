@@ -1,0 +1,360 @@
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns="http://www.w3.org/1999/html"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/layoutBase}">
+
+<th:block layout:fragment="content">
+    <div class="row">
+        <!-- 왼쪽 -->
+        <div class="col-4">
+            <div class="card shadow mb-4">
+                <a href="#loan" class="d-block card-header py-3" data-toggle="collapse" role="button" aria-expanded="true">
+                    <h6 class="m-0 font-weight-bold text-primary">대출 신청 정보</h6>
+                </a>
+
+                <div class="card-body p-2 collapse show" id="loan">
+                        <div class="table-responsive">
+                            <table class="table table-bordered mb-0">
+                                <tr><td>번호</td>
+                                    <td>[[${loan.loanSeq}]]
+                                        <input type="hidden" id="loanSeq" th:value="${loan.loanSeq}" >
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>총 대출 금액</td>
+                                    <td class="row mx-0">
+                                        <input type="number" step="0" class="form-control col-5" th:value="${loan.totalLoanAmount}"  oninput="formattingNumber(this)" />
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td>담보선택</td>
+                                    <td class="row mx-0">
+                                        <input type="button" value="담보선택" />
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td>단지기본일련번호</td>
+                                    <td class="row mx-0">
+                                        <input type="text" step="0" class="form-control col-5" th:value="${loan.aptCode}"  />
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td>아파트면적번호</td>
+                                    <td class="row mx-0">
+                                        <input type="text" step="0" class="form-control col-5" th:value="${loan.areaCode}" />
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td>대출기간 개월</td>
+                                    <td class="row mx-0">
+                                        <input type="number" step="0" class="form-control col-5" th:value="${loan.loanPeriodMonth}" />
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td>대출만기일</td>
+                                    <td><input type="date" class="form-control" th:value="${#strings.setSplit(loan.loanExpireDay, 'T')[0]}"   /></td>
+                                </tr>
+
+                                <tr>
+                                    <td>기본금리</td>
+                                    <td><input type="number" class="form-control" th:value="${loan.interestRate}"  placeholder="3.0" /></td>
+                                </tr>
+
+                                <tr>
+                                    <td>만기시 최고 금리</td>
+                                    <td><input type="number" class="form-control" th:value="${loan.maxInterestRate}"  placeholder="21.0" /></td>
+                                </tr>
+
+                                <tr>
+                                    <td>연체금리</td>
+                                    <td><input type="number" class="form-control" th:value="${loan.overdueInterestRate}" placeholder="5.0"  /></td>
+                                </tr>
+
+                                <tr>
+                                    <td>낙찰가율</td>
+                                    <td><input type="number" class="form-control" th:value="${loan.bidRate}"  placeholder="73.5" /></td>
+                                </tr>
+
+                                <tr>
+                                    <td>차입자 정보 조회일시</td>
+                                    <td>
+                                        <input type="text" class="form-control col-5" th:value="${loan.borrowerInfoDate}" placeholder="23년 6월 3일" />
+                                        <input type="button" value="차입자 정보 상세" id="userDetail">
+                                    </td>
+                                </tr>
+
+
+                                <tr>
+                                    <td>차입자 ID</td>
+                                    <td>
+                                        <span id="userId"><a href="">[[${loan.userId}]]</a></span>
+                                    </td>
+                                </tr>
+
+                                <!--                                -->
+<!--                                <tr>-->
+<!--                                    <td>채권최고액 설정비율 (%)</td>-->
+<!--                                    <td><input type="number" class="form-control" th:value="${loan.bidRate}"   /></td>-->
+<!--                                </tr>-->
+<!--                                <tr>-->
+<!--                                    <td>최초 금리 (%)</td>-->
+<!--                                    <td><input type="number" class="form-control" th:value="${loan.interestRate}"   /></td>-->
+<!--                                </tr>-->
+<!--                                <tr>-->
+<!--                                    <td>최대 금리 (%)</td>-->
+<!--                                    <td><input type="number" class="form-control" th:value="${loan.maxInterestRate}"  /></td>-->
+<!--                                </tr>-->
+<!--                                <tr>-->
+<!--                                    <td>연체 금리 (%)</td>-->
+<!--                                    <td><input type="number" class="form-control" th:value="${loan.overdueInterestRate}"   /></td>-->
+<!--                                </tr>-->
+<!--                                <tr>-->
+<!--                                    <td>예상 대출 실행일</td>-->
+<!--                                    <td><input type="date" class="form-control" th:value="${loan.loanDetail.expectExecutionDate}" /></td>-->
+<!--                                </tr>-->
+<!--                                <tr>-->
+<!--                                    <td>자금 사용 용도</td>-->
+<!--                                    <td><input type="text" class="form-control" th:value="${loan.loanDetail.loanUsage}" /></td>-->
+<!--                                </tr>-->
+<!--                                <tr>-->
+<!--                                    <td>실거주 여부</td>-->
+<!--                                    <td>-->
+<!--                                        ${loan.selfYn}-->
+<!--                                    </td>-->
+<!--                                </tr>-->
+<!--                                <tr>-->
+<!--                                    <td>채권 순위</td>-->
+<!--                                    <td><input type="number" class="form-control" th:value="${loan.loanDetail.orderOfBond}" /></td>-->
+<!--                                </tr>-->
+<!--                                <tr>-->
+<!--                                    <td>기 대출 잔액</td>-->
+<!--                                    <td class="row mx-0">-->
+<!--                                        <input type="number" class="form-control col-5" />-->
+<!--                                        <div class="col-1"></div>-->
+<!--                                        <input type="text" class="form-control col-5" id="underlyingMortgage_readonly"  disabled />-->
+<!--                                    </td>-->
+<!--                                </tr>-->
+<!--                                <tr>-->
+<!--                                    <td>기 채권 최고액</td>-->
+<!--                                    <td class="row mx-0">-->
+<!--                                        <input type="number" class="form-control col-5"  oninput="formattingNumber(this)"/>-->
+<!--                                        <div class="col-1"></div>-->
+<!--                                        <input type="text" class="form-control col-5" id="underlyingBondMaxLimit_readonly" disabled />-->
+<!--                                    </td>-->
+<!--                                </tr>-->
+<!--                                <tr>-->
+<!--                                    <td>수수료</td>-->
+<!--                                    <td class="row mx-0">-->
+<!--                                        <input type="number" class="form-control col-5"  oninput="formattingNumber(this)"/>-->
+<!--                                        <div class="col-1"></div>-->
+<!--                                        <input type="text" class="form-control col-5" id="fee_readonly"  disabled />-->
+<!--                                    </td>-->
+<!--                                </tr>-->
+<!--                                <tr>-->
+<!--                                    <td>제비용</td>-->
+<!--                                    <td class="row mx-0">-->
+<!--                                        <input type="number" class="form-control col-5"  oninput="formattingNumber(this)"/>-->
+<!--                                        <div class="col-1"></div>-->
+<!--                                        <input type="text" class="form-control col-5" id="cost_readonly"  disabled />-->
+<!--                                    </td>-->
+<!--                                </tr>-->
+                            </table>
+                        </div>
+
+                    <div class="d-block col-12 align-self-center">
+                        <button class="w-100 btn btn-primary btn-lg m-1 col-3" onclick="if (!confirm('are you sure?')) return false;" type="submit">수정</button>
+                        <button >상품생성</button>
+                    </div>
+                    <hr />
+                </div>
+            </div>
+
+        </div>
+
+        <!-- 오른쪽 -->
+        <div class="col-5">
+            <div class="card shadow mb-4">
+                <a href="#collateral" class="d-block card-header py-3" data-toggle="collapse" role="button" aria-expanded="true">
+                    <h6 class="m-0 font-weight-bold text-primary">대출 상세정보</h6>
+                </a>
+
+                <div class="card-body p-2 collapse show" id="collateral">
+                    <div class="table-responsive">
+                        <table class="table table-bordered mb-0">
+                            <tr><td>자가여부</td>
+                                <td><input type="text" class="form-control" th:value="${loan.loanDetail.selfYn}" /></td>
+                            </tr>
+                            <tr><td>채권순위</td>
+                                <td><input type="text" class="form-control" th:value="${loan.loanDetail.orderOfBond}" /></td>
+                            </tr>
+                            <tr><td>자금 사용처</td>
+                                <td><input type="text" class="form-control" th:value="${loan.loanDetail.loanUsage}" /></td>
+                            </tr>
+                            <tr><td>선순위 대출잔액</td>
+                                <td><input type="text" class="form-control" th:value="${loan.loanDetail.priorityLoanAmount}" /></td>
+                            </tr>
+                            <tr><td>기타 우선변제금</td>
+                                <td><input type="text" class="form-control" th:value="${loan.loanDetail.etcLoanAmount}" /></td>
+                            </tr>
+                            <tr><td>선순위 채권최고액</td>
+                                <td><input type="text" class="form-control" th:value="${loan.loanDetail.priorityBondMaxAmount}" /></td>
+                            </tr>
+                            <tr><td>대출한도 예외 설정 근거</td>
+                                <td><input type="text" class="form-control" th:value="${loan.loanDetail.limitCheckNote}" /></td>
+                            </tr>
+                            <tr><td>상환방식</td>
+                                <td><input type="text" class="form-control" th:value="${loan.loanDetail.repaymentMethod}" /></td>
+                            </tr>
+                            <tr><td>예상대출 실행일</td>
+                                <td><input type="Date" class="form-control" th:value="${loan.loanDetail.expectExecutionDate}" /></td>
+                            </tr>
+                            <tr><td>수수료</td>
+                                <td><input type="text" class="form-control" th:value="${loan.loanDetail.loanFeeAmount}" /></td>
+                            </tr>
+                            <tr><td>비용</td>
+                                <td><input type="text" class="form-control" th:value="${loan.loanDetail.costAmount}" /></td>
+                            </tr>
+                            <tr><td>채권최고액 설정비율</td>
+                                <td><input type="text" class="form-control" th:value="${loan.loanDetail.bondMaxLimitRatio}" /></td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 오른쪽 -->
+        <div class="col-3">
+            <div class="card shadow mb-4">
+
+                <a href="#note" class="d-block card-header py-3" data-toggle="collapse" role="button" aria-expanded="true">
+                    <h6 class="m-0 font-weight-bold text-primary">변경노트</h6>
+                </a>
+
+                <div class="card-body p-2 collapse show" id="note">
+                    <div class="col-12 mb-2">
+                        이러저러 했었음
+                    </div>
+                    <span>2023년 06월 27일 5:28 pm</span>
+                    <span>admin</span>
+                </div>
+
+                <div class="card-body p-2">
+                    <form class="form-row col-12"   method="post">
+                        <div class="col-12 mb-2">
+                            <label for="memo">메모</label>
+                            <textarea id="memo"  class="form-control" style="min-height: 15vh"></textarea>
+                        </div>
+
+                        <div class="d-block col-12 align-self-center">
+                            <select id="state">
+                                <option value="memo">메모작성</option>
+                                <option value="APPROVAL">심사중으로 상태변경</option>
+                                <option value="APPROVAL">승인으로 상태변경</option>
+                                <option value="REJECT">거절로 상태변경</option>
+                            </select>
+                            <button class="w-100 btn btn-success btn-sm m-1 col-3"  type="submit">실행</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <hr />
+
+    <script>
+        $("#appendTr").on("click", function() {
+
+        });
+
+        $("body").on("click", ".delRow", function() {
+            console.log("click");
+            $(this).parent().parent().remove();
+        });
+
+
+        $("#userDetail").on("click", function() {
+
+                $("#loaner > tbody").empty();
+
+                $.ajax({
+                    url : "/proxy/grayzip/v1/loan/loanAttr?loanSeq="+$("#loanSeq").val()+"&attrGroup=loaner",
+                    type: 'GET',
+                    accept: "application/json",
+                    contentType: "application/json; charset=utf-8",
+                    cache : false,
+                    success : function(data) {
+                        console.log(data);
+                        var temp = 1;
+                        Object.keys(data).forEach(function(key){
+
+                            var tr = '<tr id="loanerRw'+temp+'">'+
+                                    '<td>'+
+                                    '    <input type="text" name="key" value="'+key+'" class="form-control " >'+
+                                    '</td>'+
+                                    '<td>'+
+                                    '    <input type="text" name="value" value="'+data[key]+'" class="form-control col-5" >'+
+                                    '</td>'+
+                                    '<td>'+
+                                    '    <input type="button" value="삭제" class="form-control col-5 delRow" >'+
+                                    '</td>'+
+                                    '</tr>';
+                            temp++;
+                            $("#loaner tbody").append(tr);
+                        })
+
+                        $("#modal").modal("show");
+                    },
+                    error: function(request, error) {
+                        console.log(request);
+                        console.log(error);
+                        alert("차입자 정보를 가져오는 중에 오류가 발생했습니다.");
+                    }
+                });
+
+        });
+    </script>
+
+    <div class="modal" id="modal"  role="dialog" aria-labelledby="remoteModalLabel"  >
+        <div class="modal-dialog" style="width:80%; max-width:800px;">
+            <div class="modal-content" >
+                <div class="modal-header">
+                    <h4 class="modal-title" id="myModalLabel">차입자 신용정보</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                        X
+                    </button>
+                </div>
+
+                <div class="modal-body">
+                    <div class="jarviswidget jarviswidget-color-blueDark"
+                         id="wid-id-4" data-widget-editbutton="false"
+                         data-widget-colorbutton="false"
+                         data-widget-deletebutton="false"
+                         data-widget-togglebutton="false">
+                        <div role="content">
+                            <div class="widget-body">
+                                <input type="button" value="데이터 추가" id="appendTr">
+                                <table class="table table-bordered" id="loaner">
+                                    <tbody>
+                                    </tbody>
+                                </table>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">닫기</button>
+                    <button type="button" class="btn btn-primary" id="btn_save">저장</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</th:block>

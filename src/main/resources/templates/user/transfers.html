@@ -1,0 +1,33 @@
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns="http://www.w3.org/1999/html"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/layoutBase}">
+
+<th:block layout:fragment="content">
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">입출금 내역</h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered">
+                    <tr class="bg-gray-200">
+                        <td>번호</td><td>입/출금</td><td>금액</td><td>수수료</td><td>상태</td><td>매모</td><td>농협 TXID</td><td>시각</td>
+                    </tr>
+                    <th:block th:each="transfer : ${list}">
+                        <tr>
+                            <td>[[${transfer.id}]]</td>
+                            <td>[[${transfer.transferType}]]</td>
+                            <td>[[${#numbers.formatDecimal(transfer.amount, 0, 'DEFAULT', 0, 'DEFAULT')}]]</td>
+                            <td>[[${#numbers.formatDecimal(transfer.fee, 0, 'DEFAULT', 0, 'DEFAULT')}]]</td>
+                            <td>[[${transfer.status}]]</td>
+                            <td>[[${transfer.memo}]]</td>
+                            <td>[[${transfer.txId}]]</td>
+                            <td>[[${#temporals.format(transfer.createdAt, 'yyyy-MM-dd HH:mm:ss')}]]</td>
+                        </tr>
+                    </th:block>
+                </table>
+            </div>
+            <div th:insert="~{fragments/pagination :: pagination}"></div>
+        </div>
+    </div>
+</th:block>

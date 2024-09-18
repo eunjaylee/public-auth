@@ -1,0 +1,56 @@
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns="http://www.w3.org/1999/html"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/layoutBase}">
+
+<th:block layout:fragment="content">
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">회원 문의</h6>
+        </div>
+
+        <div class="card-body" style="text-align:right">
+            <div style="display:inline; text-align:left; width:700px" >
+            <form name="searchForm">
+                <input  name="searchKeyword" id="searchKeyword"  class="form-control" style="width:30%; display:inline" th:value="${param.searchKeyword}" >
+                <button class="w-10 btn btn-primary btn-middle" >검색</button>
+            </form>
+            </div>
+        </div>
+
+        <hr />
+
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered" id="listTable">
+                    <colgroup>
+                        <col style="width:3%;">
+                        <col style="width:5%;">
+                        <col style="width:45%;">
+                        <col style="width:10%;">
+                        <col style="width:10%;">
+                        <col style="width:5%;">
+                    </colgroup>
+                    <tr class="bg-gray-200">
+                        <td><input type="checkbox" id="allCheck" /></td>
+                        <td>번호</td>
+                        <td>제목</td>
+                        <td>작성자</td>
+                        <td>작성일</td>
+                        <td>처리여부</td>
+                    </tr>
+                    <th:block th:each="e : ${list}">
+                        <tr>
+                            <td><input type="checkbox" name="bulk" value="" th:value="${e.postSeq}"></td>
+                            <td>[[${e.postSeq}]]</td>
+                            <td><a th:href="'/users/answer/'+${e.postSeq}">[[${e.postTitle}]]</a></td>
+                            <td>[[${e.userId}]]</td>
+                            <td>[[${e.createAt}]]</td>
+                            <td>[[${e.postStatus}]]</td>
+                        </tr>
+                    </th:block>
+                </table>
+            </div>
+            <div th:insert="~{fragments/pagination :: pagination}"></div>
+        </div>
+    </div>
+</th:block>

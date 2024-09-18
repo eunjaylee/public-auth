@@ -1,0 +1,70 @@
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns="http://www.w3.org/1999/html"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/layoutBase}">
+
+<th:block layout:fragment="content">
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">담보</h6>
+        </div>
+
+        <div class="card-body">
+            <form class="form-row col-10" th:action="@{/collaterals}" method="get">
+
+                <div>기간 검색 : <input type="text" id="startedAt" class="datepicker" value="" th:value="${startAt}" >
+                        ~  <input type="text" id="finishedAt" class="datepicker" value="" th:value="${endAt}" >
+                </div>
+
+                <select class="col-2 form-select" id="status" name="status">
+                    <option value="">선택하세요.</option>
+
+                    <option th:each="status : ${regStateList}" th:value="${status.name}"
+                            th:selected="${param.status != null} ? ${#strings.equals(param.status, status.name)}: false"
+                    >[[${status.desc}]]</option>
+                </select>
+
+                <div class="col-2 d-block align-self-center">
+                    <button class="w-100 btn btn-primary btn-middle" type="submit">조회</button>
+                </div>
+            </form>
+            <div class="col-2 d-block align-self-center">
+                <a class="w-100 btn btn-primary btn-middle" type="submit" href="/collaterals/new">신규등록</a>
+            </div>
+
+        </div>
+    </div>
+
+    <hr class="my-4" />
+
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">담보 신청 내역</h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered">
+                    <tr class="bg-gray-200">
+                        <td>번호</td><td>아파트 이름</td><td>사용자</td><td>사유</td><td>신청금액</td><td>기대출금액</td><td>보증금</td><td>상태</td><td>생성시각</td>
+                    </tr>
+                    <th:block th:each="e : ${list}">
+                        <tr>
+                            <td>[[${e.id}]]</td>
+                            <td><a th:href="@{|/collaterals/${e.id}|}">[[${e.apartmentName}]]</a></td>
+                            <td>[[${e.userId}]]</td>
+                            <td>[[${e.reason}]]</td>
+                            <td>[[${#numbers.formatDecimal(e.loanAppliedAmount, 0, 'DEFAULT', 0, 'DEFAULT')}]]</td>
+                            <td>[[${#numbers.formatDecimal(e.underlyingMortgage, 0, 'DEFAULT', 0, 'DEFAULT')}]]</td>
+                            <td>[[${#numbers.formatDecimal(e.leaseDeposit, 0, 'DEFAULT', 0, 'DEFAULT')}]]</td>
+                            <td><span th:if="${e.status  == 'REG'}">등록</span>
+                                <span th:if="${e.status  == 'AUDIT'}">심사중</span>
+                                <span th:if="${e.status  == 'APPROVAL'}">승인</span>
+                                <span th:if="${e.status  == 'CANCEL'}">취소</span></td>
+                            <td>[[${e.createdAt}]]</td>
+                        </tr>
+                    </th:block>
+                </table>
+            </div>
+            <div th:insert="~{fragments/pagination :: pagination}"></div>
+        </div>
+    </div>
+</th:block>

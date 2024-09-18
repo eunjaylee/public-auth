@@ -1,0 +1,155 @@
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns="http://www.w3.org/1999/html"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/layoutBase}">
+
+<th:block layout:fragment="content">
+    <style>
+
+    .swiper {
+      width: 100%;
+      height: 100%;
+    }
+
+    .swiper-slide {
+      text-align: center;
+      font-size: 18px;
+      background: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+
+    </style>
+
+
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">상품</h6>
+        </div>
+
+        <div class="card-body">
+            <form class="form-row col-10" th:action="@{/products}" method="get">
+                <div>기간 검색 : <input type="text" id="startedAt" class="datepicker" value="" th:value="${startAt}" >
+                    ~  <input type="text" id="finishedAt" class="datepicker" value="" th:value="${endAt}" >
+                </div>
+                <select class="col-2 form-select" id="status" name="status">
+                    <option value="">선택하세요.</option>
+                    <option th:each="status : ${productStatusList}" th:value="${status.name}">[[${status.name}]]</option>
+                </select>
+
+                <div class="col-2 d-block align-self-center">
+
+                    <button class="w-100 btn btn-primary btn-middle" type="submit">조회</button>
+
+                    <a href="/products/new">신규등록</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <hr class="my-4" />
+
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">상품 내역</h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered">
+                    <tr class="bg-gray-200">
+                        <td>번호</td>
+                        <td>메인이미지</td>
+                        <td>상품 이름</td>
+                        <td>총 금액</td>
+                        <td>기본 / 만기 이율 (%)</td>
+                        <td>만기일</td>
+                        <td>회차</td>
+                        <td>상태</td>
+                        <td>투자자상세</td>
+                    </tr>
+                    <th:block th:each="e : ${list}">
+                        <tr>
+                            <td>[[${e.id}]]</td>
+                            <td>
+                                <img th:src="${e.mainImageSrc}" style="width:200px;" th:attr="data-product=${e.id}" class="toggleLike">
+                            </td>
+                            <td><a th:href="@{|/products/${e.id}|}">[[${e.apartmentName}]]</a></td>
+                            <td>[[${e.totalAmount}]]</td>
+                            <td>[[${e.interestRate}]]</td>
+                            <td><span th:if="${e.investEndAt != null}" th:text="${#strings.setSplit(e.investEndAt, 'T')[0]}"></span></td>
+                            <td>1/36</td>
+                            <td><span class="repayment" th:attr="data-loanseq=${e.id}">상환중</span></td>
+                            <td><a href="">상세보기</a></td>
+                        </tr>
+                    </th:block>
+                </table>
+            </div>
+
+        </div>
+    </div>
+
+
+    <div class="modal" id="modal2"  role="dialog" aria-labelledby="remoteModalLabel"  >
+        <div class="modal-dialog" style="width:80%; max-width:800px;">
+            <div class="modal-content" >
+                <div class="modal-header">
+                    <h4 class="modal-title" id="test1">상환 스케줄</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                        X
+                    </button>
+                </div>
+
+                <div class="modal-body">
+                    <div class="swiper">
+                        <!-- Additional required wrapper -->
+                        <div class="swiper-wrapper">
+
+                        </div>
+                        <!-- If we need pagination -->
+                        <div class="swiper-pagination"></div>
+
+                        <!-- If we need navigation buttons -->
+                        <div class="swiper-button-prev"></div>
+                        <div class="swiper-button-next"></div>
+
+                        <!-- If we need scrollbar -->
+                        <div class="swiper-scrollbar"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+
+
+        $(".repayment").on("click", function() {
+            var loanSeq = $(this).data("loanseq");
+
+            $.ajax({
+                url : "/proxy/grayzip/v1/loan/refund/"+loanSeq,
+                type: 'GET',
+                cache : false,
+                contentType: false,
+                processData: false,
+                success : function(data) {
+                    data.content.forEach(function(repayment) {
+                        var tr = '<div class="swiper-slide">'+
+                                 '<table class="table table-bordered mb-0">'+
+                                 '   <tr><td>회차 </td><td>'+repayment.stepCnt+'</td></tr>'+
+                                 '   <tr><td>이자 </td><td>'+repayment.repaymentAmount+'</td></tr>'+
+                                 '   <tr><td>원금 </td><td>'+repayment.originAmount+'</td></tr>'+
+                                 '   <tr><td>날짜 </td><td>'+repayment.expectDate+'</td></tr>'+
+                                 '</table>'+
+                                 '</div>';
+                        $(".swiper-wrapper").append(tr);
+                    });
+                    const swiper = new Swiper('.swiper',{});
+                    $("#modal2").modal("show");
+                }
+            });
+        });
+
+    </script>
+
+</th:block>

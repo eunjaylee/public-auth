@@ -1,0 +1,136 @@
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns="http://www.w3.org/1999/html"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/layoutBase}">
+
+<th:block layout:fragment="content">
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">이용약관</h6>
+        </div>
+
+        <div class="card-body" style="text-align:right">
+            <!-- <a th:href="'/board/TERMS/posts'">신규글 작성</a> -->
+
+            <select id="bulkType" style="font-size:20px; margin:5px;padding:3px;">
+                <option value="reOrder">순서변경</option>
+                <option value="use">사용</option>
+                <option value="notUse">사용안함</option>
+            </select>
+            <button class="w-10 btn btn-primary btn-middle" id="bulkAction">일괄변경</button>
+            &nbsp;
+            <button class="w-10 btn btn-success btn-middle" onclick="location.href='/board/terms/new'" >신규글 작성</button>
+
+            <div style="display:inline; text-align:left; width:700px" >
+            <form name="searchForm">
+            <select name="termsType" style="font-size:15px; margin:5px;padding:3px;">
+                <option value=""       >전체약관</option>
+                <option value="BASIC"  th:selected="${param.termsType != null} ? ${#strings.equals(param.termsType, 'BASIC')}: false" >기본약관</option>
+                <option value="INVEST" th:selected="${param.termsType != null} ? ${#strings.equals(param.termsType, 'INVEST')}: false">투자자약관</option>
+                <option value="LOAN"   th:selected="${param.termsType != null} ? ${#strings.equals(param.termsType, 'LOAN')}: false">대출자약관</option>
+                <option value="MVNO"   th:selected="${param.termsType != null} ? ${#strings.equals(param.termsType, 'MVNO')}: false">알뜰폰약관</option>
+            </select>
+            <input  name="searchKeyword" id="searchKeyword"  class="form-control" style="width:30%; display:inline" th:value="${param.searchKeyword}" >
+            <button class="w-10 btn btn-primary btn-middle" type="submit">검색</button>
+            </div>
+            </form>
+        </div>
+
+        <hr />
+
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered" id="listTable">
+                    <colgroup>
+                        <col style="width:3%;">
+                        <col style="width:5%;">
+                        <col style="width:45%;">
+                        <col style="width:10%;">
+                        <col style="width:10%;">
+                        <col style="width:5%;">
+                    </colgroup>
+                    <tr class="bg-gray-200">
+                        <td><input type="checkbox" id="allCheck" /></td>
+                        <td>번호</td>
+                        <td>제목</td>
+                        <td>약관타입</td>
+                        <td>필수여부</td>
+                        <td>사용여부</td>
+                    </tr>
+                    <th:block th:each="e : ${terms.content}">
+                        <tr>
+                            <td><input type="checkbox" name="bulk" value="" th:value="${e.termsSeq}"></td>
+                            <td>[[${e.termsSeq}]]</td>
+                            <td><a th:href="'/board/terms/'+${e.termsSeq}">[[${e.termsTitle}]]</a></td>
+                            <td>[[${e.termsType}]]</td>
+                            <td>[[${e.requireYn}]]</td>
+                            <td>[[${e.termsStatus}]]</td>
+                        </tr>
+                    </th:block>
+                </table>
+            </div>
+
+        </div>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/TableDnD/0.9.1/jquery.tablednd.js" integrity="sha256-d3rtug+Hg1GZPB7Y/yTcRixO/wlI78+2m08tosoRn7A=" crossorigin="anonymous"></script>
+
+
+    <script>
+        $("#allCheck").change(function() {
+            var checked = $("#allCheck").prop("checked");
+            $("[name='bulk']").attr("checked", checked);
+        });
+
+        $(document).ready(function() {
+            // Initialise the table
+            $("#listTable").tableDnD();
+        });
+
+
+
+
+        $("#bulkAction").on("click", function() {
+
+            var bulkArray = [];
+
+            $("[name='bulk']:checked").each(function(idx, data) {
+                bulkArray.push($(data).val());
+            })
+
+            if(bulkArray.length == 0) {
+                alert("1건이상 선택하세요");
+                return;
+            }
+
+            var bulkType = $("#bulkType").val();
+
+            var uri = "/proxy/common/v1/terms/order";
+
+            if(bulkType == "use") {
+                uri = "/proxy/common/v1/terms/status/use";
+            } else if(bulkType == "notUse") {
+                uri = "/proxy/common/v1/terms/status/notUse";
+            }
+
+            $.ajax({
+                url : uri,
+                type: 'PUT',
+                accept: "application/json",
+                contentType: "application/json; charset=utf-8",
+                data : JSON.stringify(bulkArray),
+                cache : false,
+                success : function(data) {
+                    alert("저장되었습니다.");
+                    location.reload();
+                },
+                error: function(request, error) {
+                    console.log(request);
+                    console.log(error);
+                }
+            });
+        });
+
+
+
+    </script>
+
+</th:block>

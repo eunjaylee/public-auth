@@ -1,0 +1,205 @@
+server:
+  port: 8080
+
+#  error:
+#    include-stacktrace: never
+
+spring:
+  #  cloud:
+  #    function.definition: addPoint     # 실행할 함수명
+  #    stream:
+  #      bindings:
+  #        addPoint-in-0:
+  #          destination: registerUser   # 어떻게 실행시킬지
+  messages:
+    basename: ValidationMessages
+  servlet:
+    multipart:
+      max-file-size: 5MB
+  mvc:
+    throw-exception-if-no-handler-found: true
+  web:
+    resources:
+      add-mappings: true
+  redis:
+    host: localhost
+    port: 6379
+    enable: false
+  jackson:
+    deserialization:
+      accept-single-value-as-array: true
+  devtools:
+    livereload:
+      enabled: true
+    remote:
+      restart:
+        enabled: true
+    restart:
+      enabled: true
+
+  #  redis:
+  #    host: 127.0.0.1
+  #    port: 6379
+#  datasource:
+#    driver-class-name: org.testcontainers.jdbc.ContainerDatabaseDriver
+#    url: jdbc:tc:mysql:8:///
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url : jdbc:mysql://localhost:3306/test-auth3?useUnicode=true&serverTimezone=Asia/Seoul&useSSL=false&allowPublicKeyRetrieval=true
+    password: root
+    username: root
+
+  sql:
+    init:
+      mode: always
+  session:
+    timeout: 600
+    store-type: jdbc
+    jdbc:
+      initialize-schema: always
+      table-name: SPRING_SESSION
+  jpa:
+    defer-datasource-initialization: true
+    hibernate:
+      ddl-auto: create      # 테스트 초기화를 위해
+    show-sql: true
+    #    database: h2
+    #    database-platform: org.hibernate.dialect.HSQLDialect
+    #    defer-datasource-initialization: true
+    open-in-view: false
+    generate-ddl: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL8Dialect
+        show_sql: true
+        format_sql: true
+        highlight_sql: true
+        default_batch_fetch_size: 500
+        temp:
+          use_jdbc_metadata_defaults: false
+        type:
+          descriptor:
+            sql:
+              BasicBinder:
+                log:
+                  level: TRACE
+  thymeleaf:
+    cache: false
+    prefix: file:src/main/resources/templates/
+  security:
+    basic:
+      enabled:
+        false
+    oauth2:
+      client:
+        registration:
+          auth0:
+            client-id: Z8yenJBjbNPQIdawtzvoTA8cP15qWsFb
+            client-secret: usSVcnI2isgVpsvuswv-HxluLLezXrvShdxcbLWUSlry88ut9lHuLq4vxOw7mJxj
+            scope:
+              - openid
+              - profile
+              - email
+          google:
+            client-id: 1092064151256-3tivm1do87o4bhjgin48bpsq8mkr2tir.apps.googleusercontent.com
+            client-secret: xxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+            scope: profile,email
+          facebook:
+            client-id: 309175904516915
+            client-secret: xxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+            scope: public_profile,email
+          kakao:
+            client-id: 5fe862057d5ccb87d77b835241b62b9a
+            client-secret: xxxxxxxxxxxxxxxxxxxxxxxx
+            scope: profile_nickname, profile_image, account_email
+            client-name: kakao
+            authorization-grant-type: authorization_code
+            redirect-uri: "{baseUrl}/{action}/oauth2/code/{registrationId}"
+            client-authentication-method: client_secret_post
+          naverworks:
+            client-id: jOkJnxkMXn_wmHkUoAvI
+            client-secret: LpR2R_pj5u
+            authorization-grant-type: authorization_code
+            redirect-uri: "{baseUrl}/{action}/oauth2/code/{registrationId}"
+            scope: bot,user
+        provider:
+          auth0:
+            # trailing slash is important!
+            issuer-uri: https://dev-76lpn4ca.us.auth0.com/
+          #          facebook:
+          #            authorizationUri: https://www.facebook.com/v3.0/dialog/oauth
+          #            tokenUri: https://graph.facebook.com/v3.0/oauth/access_token
+          #            userInfoUri: https://graph.facebook.com/v3.0/me?fields=id,first_name,middle_name,last_name,name,email,verified,is_verified,picture.width(250).height(250)
+          kakao:
+            authorization_uri: https://kauth.kakao.com/oauth/authorize
+            token-uri: https://kauth.kakao.com/oauth/token
+            user-info-uri: https://kapi.kakao.com/v2/user/me
+            user-name-attribute: id
+          naverworks:
+            authorization_uri: https://auth.worksmobile.com/oauth2/v2.0/authorize
+            token-uri: https://auth.worksmobile.com/oauth2/v2.0/token
+            user-info-uri: https://www.worksapis.com/v1.0/users
+            user-name-attribute: userName
+
+logging:
+  level:
+    root: DEBUG
+    org:
+      springframework:
+        security: DEBUG
+      hibernate:
+        orm.jdbc.bind: trace
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+      base-path: /actuator
+  #      cors:
+  #        allowed-origins: http://example.com
+  #        allowedMethods: GET,POST
+  endpoint:
+    health:
+      show-details: always
+
+#  /actuator/health
+
+
+nice:
+  adult-age: 19
+  code: xxx
+  password: 000
+  domain : kkk.example.com
+
+
+gmail:
+  username: eunjay.ri@gmail.com
+  password: xxxxxxxxxxxxxxxxxxx    # 암호화 필요
+  smtpAuth: true
+  starttlsEnable: true
+  smtpHost: smtp.gmail.com
+  smtpPort: 587
+
+springdoc:
+  swagger-ui:
+    enable: true
+  show-login-endpoint : true
+
+testAuth:
+  jusoApi:
+    confmKey: xxxxxxxxxxxxxxxxxxxxx
+    host: https://www.juso.go.kr
+    api:
+      ziplink: /addrlink/addrLinkApi.do
+  kakaoJusoApi:
+    host: https://dapi.kakao.com
+    authorizationHeader: xxxxxxxxxxxxxxxxxxxxx
+
+feign:
+  client:
+    config:
+      default:
+        connectTimeout: 5000
+        readTimeout: 5000
+        loggerLevel: FULL

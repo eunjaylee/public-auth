@@ -1,0 +1,59 @@
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns="http://www.w3.org/1999/html"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/layoutBase}">
+
+<th:block layout:fragment="content">
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">포인트 충전</h6>
+        </div>
+
+        <div class="card-body">
+            <form class="form-row col-12" th:action="@{/points}" th:object="${pointChargeRequest}" method="post">
+                <div class="col-2">
+                    <label for="amount">금액</label>
+                    <input type="text" id="amount" th:field="*{amount}" class="form-control col-10" placeholder="포인트 수량">
+                </div>
+
+                <div class="col-2">
+                    <div> 원화차감여부</div>
+                    <div class="align-self-center mb-3"></div>
+                    <input type="radio" th:value="false" th:field="*{decreaseKrwAmount}">
+                    <label th:for="${#ids.prev('decreaseKrwAmount')}" class="form-check-label">차감하지 않음</label>
+                    <input type="radio" th:value="true" th:field="*{decreaseKrwAmount}">
+                    <label th:for="${#ids.prev('decreaseKrwAmount')}"  class="form-check-label">차감</label>
+                </div>
+
+                <div class="col-2 d-block align-self-center">
+                    <button class="w-100 btn btn-primary btn-lg" type="submit">포인트 충전</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <hr class="my-4" />
+
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">포인트 내역</h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered">
+                    <tr class="bg-gray-200">
+                        <td>사유</td><td>금액</td><td>잔액</td><td>시각</td>
+                    </tr>
+                    <th:block th:each="history : ${list}">
+                        <tr>
+                            <td>[[${history.memo}]]</td>
+                            <td>[[${#numbers.formatDecimal(history.amount, 0, 'DEFAULT', 0, 'DEFAULT')}]]</td>
+                            <td>[[${#numbers.formatDecimal(history.balance, 0, 'DEFAULT', 0, 'DEFAULT')}]]</td>
+                            <td>[[${history.createdAt}]]</td>
+                        </tr>
+                    </th:block>
+                </table>
+            </div>
+            <div th:insert="~{fragments/pagination :: pagination}"></div>
+        </div>
+    </div>
+</th:block>

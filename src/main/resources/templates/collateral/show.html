@@ -1,0 +1,233 @@
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns="http://www.w3.org/1999/html"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/layoutBase}">
+
+<th:block layout:fragment="content">
+    <div class="row">
+        <!-- 왼쪽 -->
+        <div class="col-8">
+            <div class="card shadow mb-4">
+                <a href="#collateral" class="d-block card-header py-3" data-toggle="collapse" role="button" aria-expanded="true">
+                    <h6 class="m-0 font-weight-bold text-primary">담보 정보</h6>
+                </a>
+
+                <div class="card-body p-2 collapse show" id="collateral">
+
+                        <div class="table-responsive">
+                            <table class="table table-bordered mb-0">
+                                <tr><td>번호</td>
+                                    <td>
+                                        [[${collateral.id}]]
+                                        <input type="hidden" th:value="${collateral.id}" id="collateralId">
+                                    </td></tr>
+                                <tr><td>차입자ID</td>
+                                    <td id="borrower">
+                                        [[${collateral.userId}]]
+                                        <input type="hidden" id="userId" th:value="${collateral.userId}">
+                                    </td>
+                                </tr>
+                                <tr><td>상태</td><td>
+                                    <span th:if="${collateral.status  == 'REG'}">등록</span>
+                                    <span th:if="${collateral.status  == 'AUDIT'}">심사중</span>
+                                    <span th:if="${collateral.status  == 'APPROVAL'}">승인</span>
+                                    <span th:if="${collateral.status  == 'REJECT'}">관리자 거절</span>
+                                    <span th:if="${collateral.status  == 'CANCEL'}">취소</span>
+                                </td></tr>
+                                <tr><td>아파트이름</td><td>[[${collateral.apartmentName}]]</td></tr>
+                                <tr><td>신청금액</td><td>[[${#numbers.formatDecimal(collateral.loanAppliedAmount, 0, 'DEFAULT', 0, 'DEFAULT')}]]</td></tr>
+                                <tr><td>기대출금액</td><td>[[${#numbers.formatDecimal(collateral.underlyingMortgage, 0, 'DEFAULT', 0, 'DEFAULT')}]]</td></tr>
+                                <tr><td>전세보증금</td><td>[[${#numbers.formatDecimal(collateral.leaseDeposit, 0, 'DEFAULT', 0, 'DEFAULT')}]]</td></tr>
+                                <tr><td>도로명주소</td><td>[[${collateral.kbAptDto.roadAddress}]]</td></tr>
+                                <tr><td>지번주소</td><td>[[${collateral.kbAptDto.landLotAddress}]]</td></tr>
+                                <tr><td>면적</td><td>[[${collateral.collateralObjectDto.supplyArea}]]/[[${collateral.collateralObjectDto.netArea}]] [[${collateral.collateralObjectDto.housingType}]]</td></tr>
+                                <tr><td>KB 아파트 코드 </td><td><a th:href="@{|https://kbland.kr/c/${collateral.kbAptDto.aptCode}|}" target="_blank">[[${collateral.kbAptDto.aptCode}]]</a></td></tr>
+                                <tr>
+                                    <td>KB 면적코드</td>
+                                    <td>[[${collateral.collateralObjectDto.areaCode}]]</td>
+                                </tr>
+                                <tr><td>KB 시세(신청시)</td><td>[[${#numbers.formatDecimal(collateral.collateralObjectDto.baseMarketPrice, 0, 'DEFAULT', 0, 'DEFAULT')}]]</td></tr>
+                                <tr><td>신청시각</td><td>[[${collateral.createdAt}]]</td>
+                            </table>
+                        </div>
+                        <div class="d-block col-12 align-self-center">
+                            <BR>
+<!--                            <button class="w-100 btn btn-primary btn-lg m-1 col-3" onclick="if (!confirm('are you sure?')) return false;" type="submit">수정</button>-->
+                            <button class="w-100 btn btn-primary btn-sm m-1 col-3" id="makeLoan">대출생성</button>
+                        </div>
+
+                </div>
+            </div>
+
+        </div>
+
+        <!-- 오른쪽 -->
+        <div class="col-3">
+            <div class="card shadow mb-4">
+
+                <a href="#note" class="d-block card-header py-3" data-toggle="collapse" role="button" aria-expanded="true">
+                    <h6 class="m-0 font-weight-bold text-primary">변경노트</h6>
+                </a>
+
+                <div class="card-body p-2">
+
+                        <div class="col-12 mb-2">
+                            <label for="memo">메모</label>
+                            <textarea id="memo"  class="form-control" style="min-height: 10vh"></textarea>
+                        </div>
+
+                        <div class="d-block col-12 align-self-center">
+                            <select id="status">
+                                <option value="">메모작성</option>
+                                <option value="AUDIT">심사중으로 상태변경</option>
+                                <option value="APPROVAL">승인으로 상태변경</option>
+                                <option value="REJECT">거절로 상태변경</option>
+                            </select>
+                            <button class="w-100 btn btn-success btn-sm m-1 col-3"  id="changeState">실행</button>
+                        </div>
+
+                </div>
+                <hr>
+                <div class="card-body p-2 collapse show" id="note">
+                </div>
+            </div>
+
+        </div>
+
+
+    </div>
+
+    <div class="modal" id="modal"  role="dialog" aria-labelledby="remoteModalLabel"  >
+        <div class="modal-dialog" style="width:80%; max-width:800px;">
+            <div class="modal-content" >
+                <div class="modal-header">
+                    <h4 class="modal-title" id="myModalLabel">차입자 대출정보</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                        X
+                    </button>
+                </div>
+
+                <div class="modal-body">
+                    <div class="jarviswidget jarviswidget-color-blueDark"
+                         id="wid-id-4" data-widget-editbutton="false"
+                         data-widget-colorbutton="false"
+                         data-widget-deletebutton="false"
+                         data-widget-togglebutton="false">
+                        <div role="content">
+                            <div class="widget-body" >
+                                <pre id="loaner">
+
+                                </pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">닫기</button>
+                    <button type="button" class="btn btn-primary" id="btn_save">저장</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        $("#borrower").on("click", function() {
+                $.ajax({
+                    url : "/proxy/grayzip/v1/loan/inquiry?userId="+$("#userId").val(),
+                    type: 'GET',
+                    accept: "application/json",
+                    contentType: "application/json; charset=utf-8",
+                    cache : false,
+                    success : function(data) {
+                        console.log(data);
+                        $("#loaner").html(JSON.stringify(data, null, 4))
+                        $("#modal").modal("show");
+                    },
+                    error: function(request, error) {
+                        console.log(request);
+                        console.log(error);
+                        alert("대출자 정보를 가져오는 중에 오류가 발생했습니다.");
+                    }
+                });
+        });
+
+        $("#changeState").on("click", function() {
+             var status = $("#status").val();
+
+             var memoLog = {
+                    "serviceType" : "COLLATERAL",
+                    "serviceId" : $("#collateralId").val(),
+                    "memo" :  $("#memo").val()
+             };
+
+             if(status !="")
+                memoLog["status"] = status;
+
+            $.ajax({
+                url : "/proxy/grayzip/v1/common/state",
+                type: 'post',
+                accept: "application/json",
+                contentType: "application/json; charset=utf-8",
+                data : JSON.stringify(memoLog),
+                cache : false,
+                success : function(data) {
+                    alert("저장되었습니다.");
+                },
+                error: function(request, error) {
+                    console.log(request);
+                    console.log(error);
+                    alert("저장시 오류가 발생했습니다.");
+                }
+            });
+        });
+
+         $.ajax({
+            url : "/proxy/grayzip/v1/common/state?serviceType=COLLATERAL&serviceId="+$("#collateralId").val(),
+            type: 'get',
+            accept: "application/json",
+            contentType: "application/json; charset=utf-8",
+            cache : false,
+            success : function(data) {
+                data.content.forEach(function(content) {
+                    var card = '<div class="card-body p-2 collapse show">' +
+                               '<span>'+content.createdAt+'</span> / <span>'+content.employId+'</span>' +
+                               '<div class="form-group" style="height:80px;boarder:1px solid red; background-color:#f0f0f0; margin-top:10px;padding:10px;">' +
+                               ''+content.memo+''+
+                               '</div>'+
+                               '</div>';
+                    $("#note").append(card);
+                });
+            },
+            error: function(request, error) {
+                console.log(request);
+                console.log(error);
+            }
+        });
+
+        $("#makeLoan").on("click", function() {
+             var memoLog = {
+                    "serviceType" : "COLLATERAL",
+                    "serviceId" : $("#collateralId").val(),
+                    "memo" :  "대출 계약 생성",
+                    "status" : "APPROVAL"
+             };
+
+             $.ajax({
+                url : "/proxy/grayzip/v1/common/state",
+                type: 'post',
+                accept: "application/json",
+                contentType: "application/json; charset=utf-8",
+                data : JSON.stringify(memoLog),
+                cache : false,
+                success : function(data) {
+                    location.href="/loans/new?collateralId="+$("#collateralId").val();
+                },
+                error: function(request, error) {
+                    alert("대출계약 생성중 오류가 발생했습니다.");
+                }
+            });
+
+        });
+
+    </script>
+
+</th:block>
